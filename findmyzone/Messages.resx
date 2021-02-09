@@ -117,7 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AlreadyDownloaded" xml:space="preserve">
+    <value>Fichier déjà présent ({0})</value>
+  </data>
   <data name="CodeShouldHave5Digits" xml:space="preserve">
     <value>Le code INSEE devrait avoir 5 chiffres (au lieu de {0} pour {1})</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="UngzipFile" xml:space="preserve">
+    <value>Décompression du fichier {0}</value>
   </data>
 </root>

@@ -61,11 +61,47 @@ namespace findmyzone {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fichier déjà présent ({0}).
+        /// </summary>
+        internal static string AlreadyDownloaded {
+            get {
+                return ResourceManager.GetString("AlreadyDownloaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Le code INSEE devrait avoir 5 chiffres (au lieu de {0} pour {1}).
         /// </summary>
         internal static string CodeShouldHave5Digits {
             get {
                 return ResourceManager.GetString("CodeShouldHave5Digits", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Erreur.
+        /// </summary>
+        internal static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ok.
+        /// </summary>
+        internal static string Ok {
+            get {
+                return ResourceManager.GetString("Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Décompression du fichier {0}.
+        /// </summary>
+        internal static string UngzipFile {
+            get {
+                return ResourceManager.GetString("UngzipFile", resourceCulture);
             }
         }
     }
