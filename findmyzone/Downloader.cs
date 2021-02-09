@@ -1,7 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.GZip;
-using ICSharpCode.SharpZipLib.Zip;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -17,10 +14,12 @@ namespace findmyzone
         public const string TplZoneFilename = "cadastre-{0}-parcelles.json";
 
         private readonly IReporter reporter;
+        private readonly IGunziper gunziper;
 
-        public Downloader(IReporter reporter)
+        public Downloader(IReporter reporter, IGunziper gunziper)
         {
             this.reporter = reporter;
+            this.gunziper = gunziper;
         }
 
         public string FilesDirectory { get; set; } = @"f:\Users\endymion\Downloads";
@@ -60,7 +59,7 @@ namespace findmyzone
 
             if (File.Exists(fileGz))
             {
-                UngzipFile(fileGz);
+                gunziper.UngzipFile(fileGz, FilesDirectory);
                 return;
             }
 
@@ -69,41 +68,8 @@ namespace findmyzone
             using (var webClient = new WebClient())
             {
                 var realFile = await webClient.DownloadFileToDirectory(url, FilesDirectory, new FileInfo(fileGz).Name);
-                UngzipFile(realFile);
+                gunziper.UngzipFile(realFile, FilesDirectory);
             }
-        }
-
-        private void UngzipFile(string gzipFile)
-        {
-            reporter.StartOp(Messages.UngzipFile, gzipFile);
-
-            try
-            {
-
-                // Use a 4K buffer. Any larger is a waste.    
-                byte[] dataBuffer = new byte[4096];
-
-                using (System.IO.Stream fs = new FileStream(gzipFile, FileMode.Open, FileAccess.Read))
-                {
-                    using (GZipInputStream gzipStream = new GZipInputStream(fs))
-                    {
-                        // Change this to your needs
-                        string fnOut = Path.Combine(FilesDirectory, Path.GetFileNameWithoutExtension(gzipFile));
-
-                        using (FileStream fsOut = File.Create(fnOut))
-                        {
-                            StreamUtils.Copy(gzipStream, fsOut, dataBuffer);
-                        }
-                    }
-                }
-
-                reporter.OpEndSuccess();
-            }
-            catch (Exception e)
-            {
-                reporter.OpEndError();
-                throw;
-            }
-        }
+        }        
     }
 }
