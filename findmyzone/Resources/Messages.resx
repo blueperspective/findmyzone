@@ -123,13 +123,25 @@
   <data name="CodeShouldHave5Digits" xml:space="preserve">
     <value>Le code INSEE devrait avoir 5 chiffres (au lieu de {0} pour {1})</value>
   </data>
+  <data name="DownloadDir" xml:space="preserve">
+    <value>Utilisation du dossier de téléchargement: {0}</value>
+  </data>
   <data name="Error" xml:space="preserve">
     <value>Erreur</value>
+  </data>
+  <data name="NoInseeCodes" xml:space="preserve">
+    <value>Aucun code INSEE n'a pu être trouvé...</value>
   </data>
   <data name="Ok" xml:space="preserve">
     <value>Ok</value>
   </data>
   <data name="UngzipFile" xml:space="preserve">
     <value>Décompression du fichier {0}</value>
+  </data>
+  <data name="WrongCityName" xml:space="preserve">
+    <value>La ville "{0}" n'a pas été trouvée</value>
+  </data>
+  <data name="WrongZipCode" xml:space="preserve">
+    <value>Le code postal "{0}" n'a pas été trouvé</value>
   </data>
 </root>

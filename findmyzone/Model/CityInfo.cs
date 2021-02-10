@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration;
 
-namespace findmyzone
+namespace findmyzone.Model
 {
     public class CityInfo
     {

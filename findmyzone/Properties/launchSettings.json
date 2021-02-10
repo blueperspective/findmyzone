@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "findmyzone": {
+      "commandName": "Project",
+      "commandLineArgs": "-v SAINT-ERBLON --pmin 7700 --pmax 8000 --bmin 150"
+    }
+  }
+}
