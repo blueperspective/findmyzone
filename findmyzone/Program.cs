@@ -51,6 +51,9 @@ namespace findmyzone
             [Option('d', "dir", HelpText = "Dossier de téléchargement")]
             public string Directory { get; set; }
 
+            [Option('o', "output", HelpText = "Page HTML")]
+            public string HtmlOutput { get; set; }
+
             [Option("nobuilding", Default = false, HelpText = "Ignorer les batiments")]
             public bool IgnoreBuildings { get; set; }
         }
@@ -66,7 +69,7 @@ namespace findmyzone
 
                     if (string.IsNullOrEmpty(options.Directory))
                     {
-                        options.Directory = KnownFolders.GetPath(KnownFolder.Downloads);
+                        options.Directory = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "findmyzone");
                         reporter.Info(Messages.DownloadDir, options.Directory);
                     }
 
@@ -166,25 +169,18 @@ namespace findmyzone
                             options.MaxBuildingArea, 
                             options.IgnoreBuildings);
 
-                        foreach (var result in results)
-                        {
-                            reporter.Info($"\nParcelle {result.Feature.Attributes["id"]}, " +
-                                $"prefixe: {result.Feature.Attributes["prefixe"]}, " +
-                                $"section: {result.Feature.Attributes["section"]}, " +
-                                $"numero: {result.Feature.Attributes["numero"]}");
-                            reporter.Info($"  position géographique: {result.Feature.Geometry.Centroid.Y} {result.Feature.Geometry.Centroid.X}");
-                            reporter.Info($"  contenance: {result.Feature.Attributes["contenance"]} m2");
-                            reporter.Info($"  surface calculée: {Math.Floor(result.ProjZoneGeometry.Area)} m2");
-                            reporter.Info($"  {result.ProjBuildingGeometries.Count} batiments, surface. calculée: {Math.Floor(result.ProjBuildingGeometries.Sum(x => x.Area))} m2");
+                        IOutput output;
 
-                            if (result.ProjBuildingGeometries.Any())
-                            {
-                                foreach (var building in result.ProjBuildingGeometries)
-                                {
-                                    reporter.Info($"    - {Math.Floor(building.Area)} m2");
-                                }
-                            }
+                        if (!string.IsNullOrEmpty(options.HtmlOutput))
+                        {
+                            output = new HtmlOutput(options.HtmlOutput);
                         }
+                        else
+                        {
+                            output = new ReporterOutput(reporter);
+                        }
+
+                        output.Render(results);
                     }
                 },
                 errors => Task.FromResult(0)

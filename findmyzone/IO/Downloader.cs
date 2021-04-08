@@ -61,7 +61,7 @@ namespace findmyzone.IO
 
             if (File.Exists(file))
             {
-                reporter.Info(Messages.AlreadyDownloaded, new FileInfo(file).Name);
+                reporter?.Info(Messages.AlreadyDownloaded, new FileInfo(file).Name);
                 return;
             }
 

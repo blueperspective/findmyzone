@@ -1,6 +1,6 @@
 ﻿namespace findmyzone.IO
 {
-    interface IReporter
+    public interface IReporter
     {
         void OpEndError();
         void OpEndSuccess();
