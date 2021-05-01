@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using findmyzone.IO;
 using findmyzone.Geo;
 using System;
+using findmyzone.Core;
 
 namespace findmyzone
 {
@@ -67,121 +68,30 @@ namespace findmyzone
                 {
                     var reporter = new ConsoleReporter();
 
-                    if (string.IsNullOrEmpty(options.Directory))
+                    var core = new FindMyZoneCore(reporter, options.Directory);
+                    var results = await core.Find(
+                        options.InseeCodes, 
+                        options.ZipCodes, 
+                        options.Cities, 
+                        options.UseComputedArea, 
+                        options.MinLotArea,
+                        options.MaxLotArea, 
+                        options.MinBuildingArea, 
+                        options.MaxBuildingArea, 
+                        options.IgnoreBuildings);
+
+                    IOutput output;
+
+                    if (!string.IsNullOrEmpty(options.HtmlOutput))
                     {
-                        options.Directory = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "findmyzone");
-                        reporter.Info(Messages.DownloadDir, options.Directory);
+                        output = new HtmlOutput(options.HtmlOutput);
+                    }
+                    else
+                    {
+                        output = new ReporterOutput(reporter);
                     }
 
-                    // force culture for google map coordinates
-                    CultureInfo.CurrentCulture = new CultureInfo("en-US");
-
-                    var findInCities = new List<CityInfo>();
-
-                    var cfg = new CsvConfiguration(CultureInfo.InvariantCulture, delimiter: ";");
-                    IList<CityInfo> citiesInfo;
-
-                    using (var reader = new StreamReader(Path.Combine(options.Directory, "correspondance-code-insee-code-postal.csv")))
-                    using (var csv = new CsvReader(reader, cfg))
-                    {
-                        csv.Context.RegisterClassMap<CityInfoMap>();
-                        citiesInfo = csv.GetRecords<CityInfo>().ToList();
-
-                        foreach (var inseeCode in options.InseeCodes)
-                        {
-                            var city = citiesInfo.FirstOrDefault(x => x.InseeCode == inseeCode);
-
-                            if (city == null)
-                            {
-                                reporter.Error(Messages.WrongZipCode);
-                                continue;
-                            }
-
-                            findInCities.Add(city);
-                        }
-
-                        foreach (var zipCode in options.ZipCodes)
-                        {
-                            var cities = citiesInfo.Where(x => x.ZipCode == zipCode);
-
-                            if (!cities.Any())
-                            {
-                                reporter.Error(Messages.WrongZipCode);
-                                continue;
-                            }
-
-                            foreach (var city in cities)
-                            {
-                                findInCities.Add(city);
-                            }
-                        }
-
-                        foreach (var cityName in options.Cities.Select(x => x.ToUpperInvariant()))
-                        {
-                            var cities = citiesInfo.Where(x => x.Name.ToUpperInvariant() == cityName).ToList();
-                            
-                            if (cities.Count() > 1)
-                            {
-                                reporter.Info($"{cities.Count()} villes correspondent, utiliser le code postal ou code insee:");
-                                foreach (var cityInfo in cities)
-                                {
-                                    reporter.Info($"- {cityInfo.ZipCode} {cityInfo.Name} (code INSEE: {cityInfo.InseeCode})");
-                                }
-                                return;
-                            }
-                            else
-                            {
-                                var city = cities.FirstOrDefault();
-
-                                if (city == null)
-                                {
-                                    reporter.Error(Messages.WrongCityName, cityName);
-                                    continue;
-                                }
-
-                                findInCities.Add(city);
-                            }
-                        }
-                    }
-
-                    if (!findInCities.Any())
-                    {
-                        reporter.Error(Messages.NoInseeCodes);
-                        return;
-                    }
-
-                    var repository = new Repository(new FeatureCollectionReader());
-                    var downloader = new Downloader(reporter, new Gunziper(reporter), repository, options.Directory) ;
-                    var finder = new ZoneFinder(repository);
-
-                    foreach (var cityInfo in findInCities)
-                    {
-                        reporter.Info($"\n# Recherche sur {cityInfo.ZipCode} {cityInfo.Name} (code INSEE: {cityInfo.InseeCode})\n");
-
-                        await downloader.Download(cityInfo.InseeCode);
-
-                        var results = finder.FindZone(
-                            cityInfo.InseeCode, 
-                            options.MinLotArea,
-                            options.MaxLotArea, 
-                            options.UseComputedArea,
-                            options.MinBuildingArea,
-                            options.MaxBuildingArea, 
-                            options.IgnoreBuildings);
-
-                        IOutput output;
-
-                        if (!string.IsNullOrEmpty(options.HtmlOutput))
-                        {
-                            output = new HtmlOutput(options.HtmlOutput);
-                        }
-                        else
-                        {
-                            output = new ReporterOutput(reporter);
-                        }
-
-                        output.Render(results);
-                    }
+                    output.Render(results);
                 },
                 errors => Task.FromResult(0)
             );
