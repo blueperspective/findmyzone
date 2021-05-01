@@ -41,7 +41,8 @@ namespace findmyzone.Core
 
             var findInCities = new List<CityInfo>();
 
-            var cfg = new CsvConfiguration(CultureInfo.InvariantCulture, delimiter: ";");
+            var cfg = new CsvConfiguration(CultureInfo.InvariantCulture);
+            cfg.Delimiter = ";";
             IList<CityInfo> citiesInfo;
 
             using (var reader = new StreamReader(Path.Combine(downloadDirectory, "correspondance-code-insee-code-postal.csv")))
@@ -56,7 +57,7 @@ namespace findmyzone.Core
 
                     if (city == null)
                     {
-                        reporter?.Error(Messages.WrongZipCode);
+                        reporter?.Error(Messages.WrongInseeCode, inseeCode);
                         continue;
                     }
 
@@ -69,7 +70,7 @@ namespace findmyzone.Core
 
                     if (!zipCodeCities.Any())
                     {
-                        reporter?.Error(Messages.WrongZipCode);
+                        reporter?.Error(Messages.WrongZipCode, zipCode);
                         continue;
                     }
 
