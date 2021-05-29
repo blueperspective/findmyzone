@@ -141,6 +141,9 @@
   <data name="WrongCityName" xml:space="preserve">
     <value>La ville "{0}" n'a pas été trouvée</value>
   </data>
+  <data name="WrongInseeCode" xml:space="preserve">
+    <value>Le code INSEE "{0}" n'a pas été trouvé</value>
+  </data>
   <data name="WrongZipCode" xml:space="preserve">
     <value>Le code postal "{0}" n'a pas été trouvé</value>
   </data>

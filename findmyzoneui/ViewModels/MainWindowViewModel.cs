@@ -1,5 +1,6 @@
+using Avalonia.Controls;
 using findmyzone.Core;
-using findmyzone.Geo;
+using findmyzoneui.Services;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,14 @@ namespace findmyzoneui.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public MainWindowViewModel()
-        {
+        private readonly AvaloniaReporter reporter;
 
+        private readonly IUiService uiService;
+
+        public MainWindowViewModel(Window window, IUiService uiService)
+        {
+            reporter = new AvaloniaReporter(window);
+            this.uiService = uiService;
         }
 
         private string city = string.Empty;
@@ -74,12 +80,23 @@ namespace findmyzoneui.ViewModels
         {
             try
             {
-                var findMyZoneCore = new FindMyZoneCore(null, null);
+                Results.Clear();
 
-                var en = await findMyZoneCore.Find(
-                    InseeCode.Split(","),
-                    ZipCode.Split(","),
-                    City.Split(","),
+                var inseeCodes = InseeCode.Length > 0 ? InseeCode.Split(",") : Enumerable.Empty<string>();
+                var zipCodes = ZipCode.Length > 0 ? ZipCode.Split(",") : Enumerable.Empty<string>();
+                var cities = City.Length > 0 ? City.Split(",") : Enumerable.Empty<string>();
+
+                if (!inseeCodes.Any() && !zipCodes.Any() && !cities.Any())
+                {
+                    return;
+                }
+
+                var findMyZoneCore = new FindMyZoneCore(reporter, null);
+
+                var finderResults = await findMyZoneCore.Find(
+                    inseeCodes,
+                    zipCodes,
+                    cities,
                     false,
                     ZoneMin,
                     ZoneMax,
@@ -87,17 +104,20 @@ namespace findmyzoneui.ViewModels
                     BuildingMax,
                     false);
 
-                Results = en.ToList();
+                foreach (var r in finderResults)
+                {
+                    Results.Add(new ResultVM(r));
+                }
             }
             catch (Exception e)
             {
-
+                await uiService.ShowException("Error", e.Message, e);
             }
         }
 
-        private IList<ZoneFinderResult> results = new List<ZoneFinderResult>();
+        private IList<ResultVM> results = new List<ResultVM>();
 
-        public IList<ZoneFinderResult> Results
+        public IList<ResultVM> Results
         {
             get => results;
             set => this.RaiseAndSetIfChanged(ref results, value);

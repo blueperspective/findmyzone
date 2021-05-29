@@ -133,6 +133,15 @@ namespace findmyzone.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Le code INSEE &quot;{0}&quot; n&apos;a pas été trouvé.
+        /// </summary>
+        internal static string WrongInseeCode {
+            get {
+                return ResourceManager.GetString("WrongInseeCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Le code postal &quot;{0}&quot; n&apos;a pas été trouvé.
         /// </summary>
         internal static string WrongZipCode {
