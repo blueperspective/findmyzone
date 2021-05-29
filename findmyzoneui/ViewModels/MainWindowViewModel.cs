@@ -1,20 +1,23 @@
 using Avalonia.Controls;
 using findmyzone.Core;
 using findmyzoneui.Services;
+using findmyzoneui.Views;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace findmyzoneui.ViewModels
 {
+    [DataContract]
     public class MainWindowViewModel : ViewModelBase
     {
         private readonly AvaloniaReporter reporter;
 
         private readonly IUiService uiService;
 
-        public MainWindowViewModel(Window window, IUiService uiService)
+        public MainWindowViewModel(MainWindow window, IUiService uiService)
         {
             reporter = new AvaloniaReporter(window);
             this.uiService = uiService;
@@ -22,6 +25,7 @@ namespace findmyzoneui.ViewModels
 
         private string city = string.Empty;
 
+        [DataMember]
         public string City
         {
             get => city;
@@ -30,6 +34,7 @@ namespace findmyzoneui.ViewModels
 
         private string zipCode = string.Empty;
 
+        [DataMember]
         public string ZipCode
         {
             get => zipCode;
@@ -38,6 +43,7 @@ namespace findmyzoneui.ViewModels
 
         private string inseeCode = string.Empty;
 
+        [DataMember]
         public string InseeCode
         {
             get => inseeCode;
@@ -46,6 +52,7 @@ namespace findmyzoneui.ViewModels
 
         private uint zoneMin;
 
+        [DataMember]
         public uint ZoneMin
         {
             get => zoneMin;
@@ -54,6 +61,7 @@ namespace findmyzoneui.ViewModels
 
         private uint zoneMax;
 
+        [DataMember]
         public uint ZoneMax
         {
             get => zoneMax;
@@ -62,6 +70,7 @@ namespace findmyzoneui.ViewModels
 
         private uint buildingMin;
 
+        [DataMember]
         public uint BuildingMin
         {
             get => buildingMin;
@@ -70,6 +79,7 @@ namespace findmyzoneui.ViewModels
 
         private uint buildingMax;
 
+        [DataMember]
         public uint BuildingMax
         {
             get => buildingMax;
@@ -117,6 +127,7 @@ namespace findmyzoneui.ViewModels
 
         private IList<ResultVM> results = new List<ResultVM>();
 
+        [IgnoreDataMember]
         public IList<ResultVM> Results
         {
             get => results;

@@ -1,10 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.ReactiveUI;
+using findmyzoneui.ViewModels;
+using ReactiveUI;
 
 namespace findmyzoneui.Views
 {
-    public class MainWindow : Window
+    public class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
         public MainWindow()
         {
@@ -17,6 +20,7 @@ namespace findmyzoneui.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+            this.WhenActivated(disposable => { });
         }
     }
 }
