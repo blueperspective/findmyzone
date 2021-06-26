@@ -5,6 +5,7 @@ using findmyzoneui.Views;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -127,10 +128,10 @@ namespace findmyzoneui.ViewModels
             }
         }
 
-        private IList<ResultVM> results = new List<ResultVM>();
+        private ObservableCollection<ResultVM> results = new();
 
         [IgnoreDataMember]
-        public IList<ResultVM> Results
+        public ObservableCollection<ResultVM> Results
         {
             get => results;
             set => this.RaiseAndSetIfChanged(ref results, value);
