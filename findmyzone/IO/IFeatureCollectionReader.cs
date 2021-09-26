@@ -2,7 +2,7 @@
 
 namespace findmyzone.IO
 {
-    interface IFeatureCollectionReader
+    public interface IFeatureCollectionReader
     {
         FeatureCollection Read(string filepath);
     }

@@ -1,6 +1,6 @@
 ﻿namespace findmyzone.IO
 {
-    interface IGunziper
+    public interface IGunziper
     {
         void UngzipFile(string gzipFile, string filesDirectory);
     }

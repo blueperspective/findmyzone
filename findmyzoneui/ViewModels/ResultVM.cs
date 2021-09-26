@@ -15,7 +15,7 @@ namespace findmyzoneui.ViewModels
             this.result = result;
 
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
-            GmapLink = $"https://www.google.fr/maps/search/{result.Feature.Geometry.Centroid.Y}+{result.Feature.Geometry.Centroid.X}";
+            gmapLink = $"https://www.google.fr/maps/search/{result.Feature.Geometry.Centroid.Y}+{result.Feature.Geometry.Centroid.X}";
         }
 
         private bool isVisited;

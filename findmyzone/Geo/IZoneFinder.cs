@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace findmyzone.Geo
 {
-    interface IZoneFinder
+    public interface IZoneFinder
     {
-        IEnumerable<ZoneFinderResult> FindZone(
+        IAsyncEnumerable<ZoneFinderResult> FindZone(
             string codeInsee, 
             uint minLotArea, 
             uint maxLotArea,

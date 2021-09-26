@@ -1,7 +1,6 @@
-﻿using Avalonia.Controls;
-using Avalonia.Controls.Notifications;
+﻿using Avalonia.Controls.Notifications;
 using findmyzone.IO;
-using System;
+using findmyzoneui.Views;
 
 namespace findmyzoneui
 {
@@ -9,7 +8,7 @@ namespace findmyzoneui
     {
         private readonly INotificationManager notificationManager;
 
-        public AvaloniaReporter(Window host)
+        public AvaloniaReporter(MainWindow host)
         {
             notificationManager = new WindowNotificationManager(host)
             {
