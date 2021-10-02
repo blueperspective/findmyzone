@@ -31,6 +31,14 @@ namespace findmyzoneui.ViewModels
 
         private readonly SettingsVM settingsVM;
 
+        public MainWindowViewModel()
+        {
+            if (!Design.IsDesignMode)
+            {
+                throw new Exception("Not in design");
+            }
+        }
+
         public MainWindowViewModel(MainWindow window, IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, SettingsVM settingsVM)
         {
             this.uiService = uiService;
