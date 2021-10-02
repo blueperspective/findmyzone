@@ -15,7 +15,10 @@ namespace findmyzoneui.ViewModels
             this.result = result;
 
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
-            gmapLink = $"https://www.google.fr/maps/search/{result.Feature.Geometry.Centroid.Y}+{result.Feature.Geometry.Centroid.X}";
+            if (result.Feature.Geometry != null)
+            {
+                gmapLink = $"https://www.google.fr/maps/search/{result.Feature.Geometry.Centroid.Y}+{result.Feature.Geometry.Centroid.X}";
+            }
         }
 
         private bool isVisited;
@@ -26,11 +29,11 @@ namespace findmyzoneui.ViewModels
             set { this.RaiseAndSetIfChanged(ref isVisited, value); }
         }
 
-        public ZoneFinderResult Result { get => result;  }
+        public ZoneFinderResult Result { get => result; }
 
-        private string gmapLink;
+        private string? gmapLink;
 
-        public string GmapLink
+        public string? GmapLink
         {
             get => gmapLink;
             set { this.RaiseAndSetIfChanged(ref gmapLink, value); }
@@ -47,10 +50,15 @@ namespace findmyzoneui.ViewModels
         public void Open()
         {
             var url = GmapLink;
-            IsVisited = true;
+
+            if (string.IsNullOrEmpty(url))
+            {
+                return;
+            }
 
             try
             {
+                IsVisited = true;
                 Process.Start(url);
             }
             catch
