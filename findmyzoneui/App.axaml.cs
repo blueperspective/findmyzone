@@ -42,13 +42,14 @@ namespace findmyzoneui
                 serviceCollection.AddSingleton<ICoreSettings, CoreSettings>();
                 serviceCollection.AddSingleton<MainWindowViewModel>();
                 serviceCollection.AddSingleton<SettingsVM>();
+
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 var contractResolve = new ServiceProviderResolver(serviceProvider);
 
                 // Create the AutoSuspendHelper.
                 var suspension = new AutoSuspendHelper(ApplicationLifetime);
-                RxApp.SuspensionHost.CreateNewAppState = () => serviceProvider.GetService<MainWindowViewModel>();
+                RxApp.SuspensionHost.CreateNewAppState = () => serviceProvider.GetRequiredService<MainWindowViewModel>();
                 RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json", contractResolve));
                 suspension.OnFrameworkInitializationCompleted();
 

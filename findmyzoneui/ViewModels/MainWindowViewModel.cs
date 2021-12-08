@@ -31,7 +31,9 @@ namespace findmyzoneui.ViewModels
 
         private readonly SettingsVM settingsVM;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MainWindowViewModel()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             if (!Design.IsDesignMode)
             {
@@ -183,7 +185,7 @@ namespace findmyzoneui.ViewModels
                     }
                 });
 
-                Cities = repository.Cities;
+                Cities = repository.Cities.OrderBy(x => x.Name).ToList();
             }
             catch (Exception e)
             {

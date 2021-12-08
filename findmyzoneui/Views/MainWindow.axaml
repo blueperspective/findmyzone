@@ -50,7 +50,7 @@
               Command="{Binding FindZones}">
         <TextBlock Text="Rechercher" />
       </Button>
-      
+
       <TextBlock Text="{Binding ResultCount, StringFormat=\{0\} zones trouvées}" />
 
     </StackPanel>
@@ -59,14 +59,19 @@
       <ItemsRepeater Items="{Binding Results}">
         <ItemsRepeater.ItemTemplate>
           <DataTemplate>
-            <StackPanel>              
+            <StackPanel>
               <TextBlock Text="{Binding Result}" />
-              <Button Command="{Binding Open}" Classes.visited="{Binding IsVisited}">
-                <TextBlock Text="Gmap"/>
-              </Button>
+              <WrapPanel>
+                <Button Command="{Binding Open}" CommandParameter="{Binding GmapLink}" Classes.visited="{Binding IsVisited}">
+                  <TextBlock Text="Gmap"/>
+                </Button>
+                <Button Command="{Binding Open}" CommandParameter="{Binding GeoportailLink}" Classes.visited="{Binding IsVisited}">
+                  <TextBlock Text="Geoportail"/>
+                </Button>
+              </WrapPanel>
             </StackPanel>
           </DataTemplate>
-          </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater.ItemTemplate>
       </ItemsRepeater>
     </ScrollViewer>
 

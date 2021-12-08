@@ -16,23 +16,13 @@ namespace findmyzone.Core
     {
         private readonly IRepository repository;
 
-        private readonly ICoreSettings settings;
-
         public  FindMyZoneCore(IRepository repository)
         {
             this.repository = repository;
-            /*
-            if (string.IsNullOrEmpty(downloadDirectory))
-            {
-                downloadDirectory = Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "findmyzone");
-                reporter?.Info(Messages.DownloadDir, downloadDirectory);
-            }
-            */
         }
 
         public IAsyncEnumerable<ZoneFinderResult> Find(IEnumerable<string> inseeCodes, bool useComputedArea, uint minLotArea, uint maxLotArea, uint minBuildingArea, uint maxBuildingArea, bool ignoreBuildings)
         {
-
             // force culture for google map coordinates
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
 
