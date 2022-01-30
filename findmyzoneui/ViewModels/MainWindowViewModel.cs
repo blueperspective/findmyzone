@@ -5,6 +5,7 @@ using findmyzone.IO;
 using findmyzone.Model;
 using findmyzone.Resources;
 using findmyzone.Win;
+using findmyzoneui.Resources;
 using findmyzoneui.Services;
 using findmyzoneui.Views;
 using ReactiveUI;
@@ -13,6 +14,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -21,6 +24,12 @@ namespace findmyzoneui.ViewModels
     [DataContract]
     public class MainWindowViewModel : ViewModelBase
     {
+        private const string InseeZipDataset = @"https://www.data.gouv.fr/fr/datasets/correspondance-entre-les-codes-postaux-et-codes-insee-des-communes-francaises/";
+
+        private const string InseeZipUrl = @"https://public.opendatasoft.com/explore/dataset/correspondance-code-insee-code-postal/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B";
+
+        private const string InseeZipFilename = "correspondance-code-insee-code-postal.csv";
+
         private readonly IUiService uiService;
 
         private readonly IRepository repository;
@@ -42,7 +51,8 @@ namespace findmyzoneui.ViewModels
 
             Results = new ObservableCollection<ResultVM>
             {
-                new ResultVM(new ZoneFinderResult
+                new ResultVM(
+                    new ZoneFinderResult
                     {
                         ProjZoneGeometry = new NetTopologySuite.Geometries.Point(1, 1),
                         Feature = new NetTopologySuite.Features.Feature()
@@ -61,6 +71,53 @@ namespace findmyzoneui.ViewModels
             this.settingsVM = settingsVM;
 
             _ = LoadRepository();
+        }
+
+        public async Task LoadRepository()
+        {
+            try
+            {
+                IsLoading = true;
+
+                string inseeZipFile = Path.Combine(coreSettings.DownloadDirectory, "correspondance-code-insee-code-postal.csv");
+
+                if (!File.Exists(inseeZipFile))
+                {
+                    if (await uiService.Ask(UiMessages.AskDownloadZipInseeCodesTitle, UiMessages.AskDownloadZipInseeCodes) == MessageBox.Avalonia.Enums.ButtonResult.Yes)
+                    {
+                        var uri = new Uri(InseeZipUrl);
+                        HttpClient client = new();
+                        var response = await client.GetAsync(uri);
+                        using (var fs = new FileStream(inseeZipFile, FileMode.CreateNew))
+                        {
+                            await response.Content.CopyToAsync(fs);
+                        }
+                    }
+                    else
+                    {
+                        await uiService.ShowMessage(UiMessages.Error, string.Format(UiMessages.MissingRequiredZipInseeCodes, InseeZipDataset, InseeZipUrl));
+                    }
+                }
+
+                await Task.Run(() =>
+                {
+                    using (var reader = new StreamReader(inseeZipFile))
+                    {
+                        var cityReader = new CityInfoReader(reader);
+                        cityReader.Fill(repository);
+                    }
+                });
+
+                Cities = repository.Cities.OrderBy(x => x.Name).ToList();
+            }
+            catch (Exception e)
+            {
+                await uiService.ShowException("Error", e.Message, e);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         [DataMember]
@@ -169,33 +226,6 @@ namespace findmyzoneui.ViewModels
 
             return false;
         });
-
-        public async Task LoadRepository()
-        {
-            try
-            {
-                IsLoading = true;
-
-                await Task.Run(() =>
-                {
-                    using (var reader = new StreamReader(Path.Combine(coreSettings.DownloadDirectory, "correspondance-code-insee-code-postal.csv")))
-                    {
-                        var cityReader = new CityInfoReader(reader);
-                        cityReader.Fill(repository);
-                    }
-                });
-
-                Cities = repository.Cities.OrderBy(x => x.Name).ToList();
-            }
-            catch (Exception e)
-            {
-                await uiService.ShowException("Error", e.Message, e);
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
 
         public async void FindZones()
         {
