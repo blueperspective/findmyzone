@@ -17,7 +17,16 @@ namespace findmyzoneui.Json
             if (serviceProvider.GetService(objectType) != null)
             {
                 JsonObjectContract contract = base.CreateObjectContract(objectType);
-                contract.DefaultCreator = () => serviceProvider.GetService(objectType);
+                contract.DefaultCreator = () =>
+                {
+                    var obj = serviceProvider.GetService(objectType);
+                    if (obj == null)
+                    {
+                        throw new ArgumentException($"Service Provider could not create service {objectType}");
+                    }
+                    return obj;
+                };
+
                 return contract;
             }
 
