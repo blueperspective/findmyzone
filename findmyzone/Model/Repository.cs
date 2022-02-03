@@ -10,7 +10,7 @@ namespace findmyzone.Model
     {
         private readonly ICoreSettings coreSettings;
 
-        private readonly IDownloader downloader;
+        private readonly IFindMyZoneDownloader downloader;
 
         private readonly IFeatureCollectionReader reader;
 
@@ -18,7 +18,7 @@ namespace findmyzone.Model
 
         public List<CityInfo> Cities { get; } = new();
 
-        public Repository(ICoreSettings coreSettings, IDownloader downloader, IFeatureCollectionReader reader)
+        public Repository(ICoreSettings coreSettings, IFindMyZoneDownloader downloader, IFeatureCollectionReader reader)
         {
             this.coreSettings = coreSettings;
             this.downloader = downloader;

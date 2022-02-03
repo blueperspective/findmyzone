@@ -124,12 +124,18 @@ Voulez vous le télécharger automatiquement ?</value>
   <data name="AskDownloadZipInseeCodesTitle" xml:space="preserve">
     <value>Fichier code Insee &lt;&gt; code Postal</value>
   </data>
+  <data name="DownloadingZipInseeCodes" xml:space="preserve">
+    <value>Téléchargement du fichier de correspondance code Insee &lt;&gt; code Postal</value>
+  </data>
   <data name="Error" xml:space="preserve">
     <value>Erreur</value>
   </data>
-  <data name="MissingRequiredZipInseeCodes" xml:space="preserve">
+  <data name="ErrorDownloadingZipInseeCodes" xml:space="preserve">
     <value>Le fichier de correspondance code Insee et code postal est nécessaire, l'application ne peut pas fonctionner sans. Vous pouvez le télécharger manuellement : 
 - lien dataset {0} 
 - lien direct {1}</value>
+  </data>
+  <data name="FirstTimeUse" xml:space="preserve">
+    <value>Première utilisation</value>
   </data>
 </root>

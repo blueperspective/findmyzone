@@ -1,89 +1,77 @@
-﻿using findmyzone.Resources;
-using System;
+﻿using System;
+using System.Buffers;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace findmyzone.IO
+namespace findmyzone.IO;
+
+public class Downloader
 {
-    public class Downloader : IDownloader
+    private const int BufferSize = 4096;
+
+    public async Task<string> Download(string url, string destinationFile, Action<uint, long?, long?> progress, Action indeterminate)
     {
-        public const string GzipExt = ".gz";
-        public const string TplBuildingUrl = "https://cadastre.data.gouv.fr/data/etalab-cadastre/latest/geojson/communes/{0}/{1}/cadastre-{1}-batiments.json.gz";
-        public const string TplBuildingFilename = "cadastre-{0}-batiments.json";
-        public const string TplZoneUrl = "https://cadastre.data.gouv.fr/data/etalab-cadastre/latest/geojson/communes/{0}/{1}/cadastre-{1}-parcelles.json.gz";
-        public const string TplZoneFilename = "cadastre-{0}-parcelles.json";
+        HttpClient client = new();
+        HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 
-        private readonly IReporter reporter;
-        private readonly IGunziper gunziper;
+        var totalBytes = response.Content.Headers.ContentLength;
 
-        public Downloader(IReporter reporter, IGunziper gunziper)
+        if (totalBytes == null)
         {
-            this.reporter = reporter;
-            this.gunziper = gunziper;
+            indeterminate.Invoke();
         }
 
-        public string FilesDirectory { get; set; }
+        using var contentStream = await response.Content.ReadAsStreamAsync() ;
+        return await ProcessContentStream(totalBytes, contentStream, destinationFile, progress);
+    }
 
-        public async Task<string> DownloadZone(string inseeCode)
+    private async Task<string> ProcessContentStream(long? totalDownloadSize, Stream contentStream, string destinationFilePath, Action<uint, long?, long?> progress)
+    {
+        var totalBytesRead = 0L;
+        var readCount = 0L;
+        var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
+        var isMoreToRead = true;
+
+        using (var fileStream = new FileStream(destinationFilePath, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize, true))
         {
-            if (string.IsNullOrEmpty(inseeCode))
-                throw new ArgumentNullException("code");
+            uint percent = 0;
+            uint prevPercent = 0;
 
-            if (inseeCode.Length != 5)
-                throw new ArgumentException(string.Format(Messages.CodeShouldHave5Digits, inseeCode.Length, inseeCode));
-
-            string zoneUrl = string.Format(TplZoneUrl, inseeCode.Substring(0, 2), inseeCode);
-            string zoneFile = Path.Combine(FilesDirectory, string.Format(TplZoneFilename, inseeCode));
-            string zoneFileGz = zoneFile + GzipExt;
-
-            await DownloadIfNeeded(zoneUrl, zoneFile, zoneFileGz);
-
-            return zoneFile;
-        }
-
-        public async Task<string> DownloadBuilding(string inseeCode)
-        {
-            if (string.IsNullOrEmpty(inseeCode))
-                throw new ArgumentNullException("code");
-
-            if (inseeCode.Length != 5)
-                throw new ArgumentException(string.Format(Messages.CodeShouldHave5Digits, inseeCode.Length, inseeCode));
-
-            string buildingUrl = string.Format(TplBuildingUrl, inseeCode.Substring(0, 2), inseeCode);
-            string buildingFile = Path.Combine(FilesDirectory, string.Format(TplBuildingFilename, inseeCode));
-            string buildingFileGz = buildingFile + GzipExt;
-
-            await DownloadIfNeeded(buildingUrl, buildingFile, buildingFileGz);
-
-            return buildingFile;
-        }
-
-        private async Task DownloadIfNeeded(string url, string file, string fileGz)
-        {
-            // check if filename exists in json
-
-            if (File.Exists(file))
+            do
             {
-                reporter?.Info(Messages.AlreadyDownloaded, new FileInfo(file).Name);
-                return;
+                var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead == 0)
+                {
+                    isMoreToRead = false;
+                    continue;
+                }
+
+                await fileStream.WriteAsync(buffer, 0, bytesRead);
+
+                totalBytesRead += bytesRead;
+                readCount += 1;
+
+                if (totalDownloadSize != null)
+                {
+                    percent = (uint)(bytesRead * 100 / totalDownloadSize);
+
+                    if (percent > prevPercent)
+                    {
+                        prevPercent = percent;
+                        progress.Invoke(percent, totalBytesRead / 1024, totalDownloadSize / 1024);
+                    }
+                }
+                else
+                {
+                    progress.Invoke(0, totalBytesRead / 1024, totalDownloadSize / 1024);
+                }
             }
-
-            // check if filename exists in json.gz
-
-            if (File.Exists(fileGz))
-            {
-                gunziper.UngzipFile(fileGz, FilesDirectory);
-                return;
-            }
-
-            // download and ungzip
-
-            using (var webClient = new WebClient())
-            {
-                var realFile = await webClient.DownloadFileToDirectory(url, FilesDirectory, new FileInfo(fileGz).Name);
-                gunziper.UngzipFile(realFile, FilesDirectory);
-            }
+            while (isMoreToRead);
         }
+
+        ArrayPool<byte>.Shared.Return(buffer);
+        return destinationFilePath;
     }
 }
+
