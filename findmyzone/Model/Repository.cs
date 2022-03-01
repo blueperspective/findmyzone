@@ -27,7 +27,7 @@ namespace findmyzone.Model
 
         public async Task<FeatureCollection> GetBuildingFeatures(string inseeCode)
         {
-            if (!codeElement.TryGetValue(inseeCode, out RepoElement repoElement))
+            if (!codeElement.TryGetValue(inseeCode, out RepoElement? repoElement))
             {
                 repoElement = new RepoElement();
                 codeElement[inseeCode] = repoElement;
@@ -35,7 +35,6 @@ namespace findmyzone.Model
 
             if (string.IsNullOrEmpty(repoElement.BuildingFile))
             {
-                downloader.FilesDirectory = coreSettings.DownloadDirectory;
                 var buildingFile = await downloader.DownloadBuilding(inseeCode);
                 repoElement.BuildingFile = buildingFile;
             }
@@ -50,7 +49,7 @@ namespace findmyzone.Model
 
         public async Task<FeatureCollection> GetZoneFeatures(string inseeCode)
         {
-            if (!codeElement.TryGetValue(inseeCode, out RepoElement repoElement))
+            if (!codeElement.TryGetValue(inseeCode, out RepoElement? repoElement))
             {
                 repoElement = new RepoElement();
                 codeElement[inseeCode] = repoElement;
@@ -58,7 +57,6 @@ namespace findmyzone.Model
 
             if (string.IsNullOrEmpty(repoElement.ZoneFile))
             {
-                downloader.FilesDirectory = coreSettings.DownloadDirectory;
                 var zoneFile = await downloader.DownloadZone(inseeCode);
                 repoElement.ZoneFile = zoneFile;
             }
@@ -73,12 +71,12 @@ namespace findmyzone.Model
 
         class RepoElement
         {
-            public string ZoneFile { get; set; }
+            public string? ZoneFile { get; set; }
 
-            public FeatureCollection ZoneCollection { get; set; }
+            public FeatureCollection? ZoneCollection { get; set; }
 
-            public string BuildingFile { get; set; }
-            public FeatureCollection BuildingCollection { get; set; }
+            public string? BuildingFile { get; set; }
+            public FeatureCollection? BuildingCollection { get; set; }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Buffers;
 using System.IO;
 using System.Net.Http;
@@ -6,27 +7,29 @@ using System.Threading.Tasks;
 
 namespace findmyzone.IO;
 
-public class Downloader
+public class Downloader : IDownloader
 {
     private const int BufferSize = 4096;
 
-    public async Task<string> Download(string url, string destinationFile, Action<uint, long?, long?> progress, Action indeterminate)
+    public async Task<string> Download(string url, string destinationFile, Action<uint, long?, long?>? progress, Action? indeterminate)
     {
         HttpClient client = new();
         HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+
+        Log.Information("Downloading {url}", url);
 
         var totalBytes = response.Content.Headers.ContentLength;
 
         if (totalBytes == null)
         {
-            indeterminate.Invoke();
+            indeterminate?.Invoke();
         }
 
-        using var contentStream = await response.Content.ReadAsStreamAsync() ;
+        using var contentStream = await response.Content.ReadAsStreamAsync();
         return await ProcessContentStream(totalBytes, contentStream, destinationFile, progress);
     }
 
-    private async Task<string> ProcessContentStream(long? totalDownloadSize, Stream contentStream, string destinationFilePath, Action<uint, long?, long?> progress)
+    private async Task<string> ProcessContentStream(long? totalDownloadSize, Stream contentStream, string destinationFilePath, Action<uint, long?, long?>? progress)
     {
         var totalBytesRead = 0L;
         var readCount = 0L;
@@ -59,16 +62,18 @@ public class Downloader
                     if (percent > prevPercent)
                     {
                         prevPercent = percent;
-                        progress.Invoke(percent, totalBytesRead / 1024, totalDownloadSize / 1024);
+                        progress?.Invoke(percent, totalBytesRead / 1024, totalDownloadSize / 1024);
                     }
                 }
                 else
                 {
-                    progress.Invoke(0, totalBytesRead / 1024, totalDownloadSize / 1024);
+                    progress?.Invoke(0, totalBytesRead / 1024, totalDownloadSize / 1024);
                 }
             }
             while (isMoreToRead);
         }
+
+        Log.Information("Download complete");
 
         ArrayPool<byte>.Shared.Return(buffer);
         return destinationFilePath;

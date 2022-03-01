@@ -4,19 +4,16 @@ using findmyzone.Core;
 using findmyzone.Geo;
 using findmyzone.IO;
 using findmyzone.Model;
-using findmyzone.Resources;
-using findmyzone.Win;
 using findmyzoneui.Resources;
 using findmyzoneui.Services;
 using findmyzoneui.Views;
 using ReactiveUI;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -68,8 +65,6 @@ namespace findmyzoneui.ViewModels
             this.coreSettings = coreSettings;
             this.notificationManager = notificationManager;
             this.settingsVM = settingsVM;
-
-            _ = LoadRepository();
         }
 
         public async Task LoadRepository()
@@ -84,6 +79,7 @@ namespace findmyzoneui.ViewModels
                 {
                     try
                     {
+                        Log.Information("Insee file not found, downloading it");
                         notificationManager.Show(new Notification(UiMessages.FirstTimeUse, UiMessages.DownloadingZipInseeCodes));
 
                         await Download(InseeZipUrl, inseeZipFile);
@@ -91,7 +87,8 @@ namespace findmyzoneui.ViewModels
                     catch (Exception ex)
                     {
                         await uiService.ShowException(UiMessages.Error, ex.Message, ex);
-                        await uiService.ShowMessage(UiMessages.Error, UiMessages.ErrorDownloadingZipInseeCodes);
+                        await uiService.ShowMessage(UiMessages.Error, string.Format(UiMessages.ErrorDownloadingZipInseeCodes, InseeZipDataset, InseeZipUrl));
+                        return;
                     }
                     finally
                     {
@@ -147,9 +144,9 @@ namespace findmyzoneui.ViewModels
             set => this.RaiseAndSetIfChanged(ref isDownloading, value);
         }
 
-        private string downloadName;
+        private string? downloadName;
 
-        public string DownloadName
+        public string? DownloadName
         {
             get => downloadName;
             set => this.RaiseAndSetIfChanged(ref downloadName, value);
@@ -186,7 +183,7 @@ namespace findmyzoneui.ViewModels
             get => totalKb;
             set => this.RaiseAndSetIfChanged(ref totalKb, value);
         }
-        
+
         #endregion
 
         [DataMember]
@@ -288,9 +285,9 @@ namespace findmyzoneui.ViewModels
         {
             if (item is CityInfo city)
             {
-                return city.Name.StartsWith(search, StringComparison.InvariantCultureIgnoreCase)
-                || city.InseeCode.StartsWith(search)
-                || city.ZipCodes.Any(x => x.StartsWith(search));
+                return city.Name != null && city.Name.StartsWith(search, StringComparison.InvariantCultureIgnoreCase)
+                || (city.InseeCode != null && city.InseeCode.StartsWith(search))
+                || (city.ZipCodes != null && city.ZipCodes.Any(x => x.StartsWith(search)));
             }
 
             return false;
@@ -300,13 +297,13 @@ namespace findmyzoneui.ViewModels
         {
             try
             {
-                if (SelectedCity == null)
+                if (SelectedCity == null || SelectedCity.InseeCode == null)
                 {
                     return;
                 }
 
                 IsSearching = true;
-                Results.Clear();                
+                Results.Clear();
 
                 var finderResults = zoneFinder.FindZone(
                     SelectedCity.InseeCode,

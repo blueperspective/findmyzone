@@ -11,18 +11,12 @@ namespace findmyzone.Geo
         public const string AreaAttribute = "contenance";
 
         private readonly IRepository repository;
-
-        private MathTransform mt = null;
+        private readonly MathTransform mt;
 
         public ZoneFinder(IRepository repository)
         {
             this.repository = repository;
 
-            CreateMathTransform();
-        }
-
-        private void CreateMathTransform()
-        {
             var wgs84 = GeographicCoordinateSystem.WGS84;
             var utm17n_fromWKT = (ProjectedCoordinateSystem)ProjNet.IO.CoordinateSystems.CoordinateSystemWktReader.Parse(Wtk.Lambert93);
             var ctFactory = new CoordinateTransformationFactory();

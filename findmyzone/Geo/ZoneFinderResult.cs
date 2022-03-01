@@ -9,8 +9,8 @@ namespace findmyzone.Geo
 {
     public class ZoneFinderResult
     {
-        public IFeature Feature { get; set; }
-        public Geometry ProjZoneGeometry { get; set; }
+        public IFeature? Feature { get; set; }
+        public Geometry? ProjZoneGeometry { get; set; }
         public IList<Geometry> ProjBuildingGeometries { get; set; } = new List<Geometry>();
 
         public override string ToString()
@@ -24,7 +24,7 @@ namespace findmyzone.Geo
                         $"numero: {Feature?.Attributes["numero"]}");
                 builder.AppendLine($"  position géographique: {Feature?.Geometry.Centroid.Y} {Feature?.Geometry.Centroid.X}");
                 builder.AppendLine($"  contenance: {Feature?.Attributes["contenance"]} m2");
-                builder.AppendLine($"  surface calculée: {Math.Floor(ProjZoneGeometry.Area)} m2");
+                builder.AppendLine($"  surface calculée: {(ProjZoneGeometry != null ? Math.Floor(ProjZoneGeometry.Area) : string.Empty)} m2");
                 builder.AppendLine($"  {ProjBuildingGeometries.Count} batiments, surface. calculée: {Math.Floor(ProjBuildingGeometries.Sum(x => x.Area))} m2");
 
                 if (ProjBuildingGeometries.Any())

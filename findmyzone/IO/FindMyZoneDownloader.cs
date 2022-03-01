@@ -1,4 +1,5 @@
-﻿using findmyzone.Resources;
+﻿using findmyzone.Core;
+using findmyzone.Resources;
 using System;
 using System.IO;
 using System.Net;
@@ -14,27 +15,27 @@ namespace findmyzone.IO
         public const string TplZoneUrl = "https://cadastre.data.gouv.fr/data/etalab-cadastre/latest/geojson/communes/{0}/{1}/cadastre-{1}-parcelles.json.gz";
         public const string TplZoneFilename = "cadastre-{0}-parcelles.json";
 
-        private readonly IReporter reporter;
         private readonly IGunziper gunziper;
+        private readonly IDownloader downloader;
+        private readonly ICoreSettings coreSettings;
 
-        public FindMyZoneDownloader(IReporter reporter, IGunziper gunziper)
+        public FindMyZoneDownloader(IGunziper gunziper, IDownloader downloader, ICoreSettings coreSettings)
         {
-            this.reporter = reporter;
             this.gunziper = gunziper;
+            this.downloader = downloader;
+            this.coreSettings = coreSettings;
         }
-
-        public string FilesDirectory { get; set; }
 
         public async Task<string> DownloadZone(string inseeCode)
         {
             if (string.IsNullOrEmpty(inseeCode))
-                throw new ArgumentNullException("code");
+                throw new ArgumentNullException(nameof(inseeCode));
 
             if (inseeCode.Length != 5)
                 throw new ArgumentException(string.Format(Messages.CodeShouldHave5Digits, inseeCode.Length, inseeCode));
 
             string zoneUrl = string.Format(TplZoneUrl, inseeCode.Substring(0, 2), inseeCode);
-            string zoneFile = Path.Combine(FilesDirectory, string.Format(TplZoneFilename, inseeCode));
+            string zoneFile = Path.Combine(coreSettings.DownloadDirectory, string.Format(TplZoneFilename, inseeCode));
             string zoneFileGz = zoneFile + GzipExt;
 
             await DownloadIfNeeded(zoneUrl, zoneFile, zoneFileGz);
@@ -51,7 +52,7 @@ namespace findmyzone.IO
                 throw new ArgumentException(string.Format(Messages.CodeShouldHave5Digits, inseeCode.Length, inseeCode));
 
             string buildingUrl = string.Format(TplBuildingUrl, inseeCode.Substring(0, 2), inseeCode);
-            string buildingFile = Path.Combine(FilesDirectory, string.Format(TplBuildingFilename, inseeCode));
+            string buildingFile = Path.Combine(coreSettings.DownloadDirectory, string.Format(TplBuildingFilename, inseeCode));
             string buildingFileGz = buildingFile + GzipExt;
 
             await DownloadIfNeeded(buildingUrl, buildingFile, buildingFileGz);
@@ -65,7 +66,6 @@ namespace findmyzone.IO
 
             if (File.Exists(file))
             {
-                reporter?.Info(Messages.AlreadyDownloaded, new FileInfo(file).Name);
                 return;
             }
 
@@ -73,17 +73,17 @@ namespace findmyzone.IO
 
             if (File.Exists(fileGz))
             {
-                gunziper.UngzipFile(fileGz, FilesDirectory);
+                gunziper.UngzipFile(fileGz, coreSettings.DownloadDirectory);
                 return;
             }
 
             // download and ungzip
 
-            using (var webClient = new WebClient())
-            {
-                var realFile = await webClient.DownloadFileToDirectory(url, FilesDirectory, new FileInfo(fileGz).Name);
-                gunziper.UngzipFile(realFile, FilesDirectory);
-            }
+
+            string realFile = Path.Combine(coreSettings.DownloadDirectory, new FileInfo(fileGz).Name);
+            realFile = await downloader.Download(url, realFile, null, null);
+
+            gunziper.UngzipFile(realFile, coreSettings.DownloadDirectory);
         }
     }
 }

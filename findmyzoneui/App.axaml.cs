@@ -13,6 +13,8 @@ using findmyzoneui.ViewModels;
 using findmyzoneui.Views;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Serilog;
+using System;
 
 namespace findmyzoneui
 {
@@ -20,52 +22,64 @@ namespace findmyzoneui
     {
         public override void Initialize()
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
             AvaloniaXamlLoader.Load(this);
         }
 
         public override void OnFrameworkInitializationCompleted()
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
-
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            try
             {
-                var mainWindow = new MainWindow();
-                desktop.MainWindow = mainWindow;
+                IServiceCollection serviceCollection = new ServiceCollection();
 
-                serviceCollection.AddSingleton(mainWindow);
-                serviceCollection.AddSingleton<IUiService, UiService>();
-                serviceCollection.AddSingleton<IZoneFinder, ZoneFinder>();
-                serviceCollection.AddSingleton<IRepository, Repository>();
-                serviceCollection.AddSingleton<IFeatureCollectionReader, FeatureCollectionReader>();
-                serviceCollection.AddSingleton<IReporter, AvaloniaReporter>();
-                serviceCollection.AddSingleton<IFindMyZoneDownloader, FindMyZoneDownloader>();
-                serviceCollection.AddSingleton<IGunziper, Gunziper>();
-                serviceCollection.AddSingleton<ICoreSettings, CoreSettings>();
-                serviceCollection.AddSingleton<MainWindowViewModel>();
-                serviceCollection.AddSingleton<SettingsVM>();
-
-                var notificationManager = new WindowNotificationManager(mainWindow)
+                if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
-                    Position = NotificationPosition.TopRight,
-                    MaxItems = 3
-                };
-                serviceCollection.AddSingleton<IManagedNotificationManager>(notificationManager);
+                    var mainWindow = new MainWindow();
+                    desktop.MainWindow = mainWindow;
 
-                var serviceProvider = serviceCollection.BuildServiceProvider();
+                    serviceCollection.AddSingleton(mainWindow);
+                    serviceCollection.AddSingleton<IUiService, UiService>();
+                    serviceCollection.AddSingleton<IZoneFinder, ZoneFinder>();
+                    serviceCollection.AddSingleton<IRepository, Repository>();
+                    serviceCollection.AddSingleton<IFeatureCollectionReader, FeatureCollectionReader>();
+                    serviceCollection.AddSingleton<IFindMyZoneDownloader, FindMyZoneDownloader>();
+                    serviceCollection.AddSingleton<IGunziper, Gunziper>();
+                    serviceCollection.AddSingleton<IDownloader, Downloader>();
+                    serviceCollection.AddSingleton<ICoreSettings, CoreSettings>();
+                    serviceCollection.AddSingleton<MainWindowViewModel>();
+                    serviceCollection.AddSingleton<SettingsVM>();
 
-                var contractResolve = new ServiceProviderResolver(serviceProvider);
+                    var notificationManager = new WindowNotificationManager(mainWindow)
+                    {
+                        Position = NotificationPosition.TopRight,
+                        MaxItems = 3
+                    };
+                    serviceCollection.AddSingleton<IManagedNotificationManager>(notificationManager);
 
-                // Create the AutoSuspendHelper.
-                var suspension = new AutoSuspendHelper(ApplicationLifetime);
-                RxApp.SuspensionHost.CreateNewAppState = () => serviceProvider.GetRequiredService<MainWindowViewModel>();
-                RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json", contractResolve));
-                suspension.OnFrameworkInitializationCompleted();
+                    var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                // Load the saved view model state.
-                var state = RxApp.SuspensionHost.GetAppState<MainWindowViewModel>();
+                    var contractResolve = new ServiceProviderResolver(serviceProvider);
 
-                desktop.MainWindow.DataContext = state;
-                desktop.MainWindow.Position = new PixelPoint(0, 0);
+                    // Create the AutoSuspendHelper.
+                    var suspension = new AutoSuspendHelper(ApplicationLifetime);
+                    RxApp.SuspensionHost.CreateNewAppState = () => serviceProvider.GetRequiredService<MainWindowViewModel>();
+                    RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json", contractResolve));
+                    suspension.OnFrameworkInitializationCompleted();
+
+                    // Load the saved view model state.
+                    var state = RxApp.SuspensionHost.GetAppState<MainWindowViewModel>();
+
+                    desktop.MainWindow.DataContext = state;
+                    desktop.MainWindow.Position = new PixelPoint(0, 0);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Error during initialization");
             }
 
             base.OnFrameworkInitializationCompleted();

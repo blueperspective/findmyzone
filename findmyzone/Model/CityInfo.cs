@@ -8,18 +8,18 @@ namespace findmyzone.Model
     public class CityInfo
     {
         [Name("Code INSEE")]
-        public string InseeCode { get; set; }
+        public string? InseeCode { get; set; }
 
         [Name("Code Postal")]
         [TypeConverter(typeof(ToStringArrayConverter))]
-        public string[] ZipCodes { get; set; }
+        public string[]? ZipCodes { get; set; }
 
         [Name("Commune")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public override string ToString()
         {
-            return $"{Name} ({InseeCode} / {string.Join('-', ZipCodes)})";
+            return $"{Name} ({InseeCode} / {(ZipCodes != null ? string.Join('-', ZipCodes) : string.Empty)})";
         }
     }
 
