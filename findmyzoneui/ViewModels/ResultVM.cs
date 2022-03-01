@@ -15,7 +15,7 @@ namespace findmyzoneui.ViewModels
             this.result = result;
 
             CultureInfo.CurrentCulture = new CultureInfo("en-US");
-            if (result.Feature.Geometry != null)
+            if (result.Feature != null && result.Feature.Geometry != null)
             {
                 gmapLink = $"https://www.google.fr/maps/search/{result.Feature.Geometry.Centroid.Y}+{result.Feature.Geometry.Centroid.X}";
                 geoportailLink = $"https://www.geoportail.gouv.fr/carte?c={result.Feature.Geometry.Centroid.X},{result.Feature.Geometry.Centroid.Y}&z=20&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes";

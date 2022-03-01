@@ -2,7 +2,6 @@
 using findmyzone.Resources;
 using System;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace findmyzone.IO
@@ -79,9 +78,8 @@ namespace findmyzone.IO
 
             // download and ungzip
 
-
             string realFile = Path.Combine(coreSettings.DownloadDirectory, new FileInfo(fileGz).Name);
-            realFile = await downloader.Download(url, realFile, null, null);
+            realFile = await downloader.Download(url, realFile);
 
             gunziper.UngzipFile(realFile, coreSettings.DownloadDirectory);
         }
