@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Threading;
 using findmyzone.Core;
 using findmyzone.Geo;
 using findmyzone.IO;
@@ -96,6 +97,11 @@ namespace findmyzoneui.ViewModels
         {
             try
             {
+                if (Cities != null)
+                {
+                    return;
+                }
+
                 IsLoading = true;
 
                 string inseeZipFile = Path.Combine(coreSettings.DownloadDirectory, InseeZipFilename);
@@ -310,21 +316,28 @@ namespace findmyzoneui.ViewModels
                 IsSearching = true;
                 Results.Clear();
 
-                var finderResults = zoneFinder.FindZone(
-                    SelectedCity.InseeCode,
-                    ZoneMin,
-                    ZoneMax,
-                    false,
-                    BuildingMin,
-                    BuildingMax,
-                    false);
-
-                ResultCount = await finderResults.CountAsync();
-
-                await foreach (var r in finderResults)
+                await Task.Run(async () =>
                 {
-                    Results.Add(new ResultVM(r));
-                }
+                    var finderResults = zoneFinder.FindZone(
+                        SelectedCity.InseeCode,
+                        ZoneMin,
+                        ZoneMax,
+                        false,
+                        BuildingMin,
+                        BuildingMax,
+                        false);
+
+
+                    await foreach (var r in finderResults)
+                    {
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            Results.Add(new ResultVM(r));
+                        });
+                    }
+
+                    await Dispatcher.UIThread.InvokeAsync(async () => { ResultCount = await finderResults.CountAsync(); });
+                });
             }
             catch (Exception e)
             {

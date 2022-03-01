@@ -49,9 +49,10 @@
 
       <Button Margin="0,4,0,0" HorizontalAlignment="Center"
               IsEnabled="{Binding !IsSearching}"
-              Command="{Binding FindZones}">
-        <TextBlock Text="Rechercher" />
-      </Button>
+              Command="{Binding FindZones}"
+              Content="Rechercher" />
+
+      <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsSearching}" />
 
       <TextBlock Text="{Binding ResultCount, StringFormat=\{0\} zones trouvées}" />
 
