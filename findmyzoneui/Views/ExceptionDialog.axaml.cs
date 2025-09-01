@@ -4,48 +4,31 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using System;
 
-namespace findmyzoneui.Views
+namespace findmyzoneui.Views;
+
+public partial class ExceptionDialog : Window
 {
-    public class ExceptionDialog : Window
+    public ExceptionDialog()
     {
-        public ExceptionDialog()
-        {
-            this.InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
-        }
-        public ExceptionDialog(string title, string message, Exception e)
-        {
-            this.InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
+        this.InitializeComponent();
+    }
 
-            var txtTitle = this.FindControl<TextBlock>("title");
-            txtTitle.Text = title;
+    public ExceptionDialog(string title, string message, Exception e)
+    {
+        this.InitializeComponent();
 
-            var txtMessage = this.FindControl<TextBox>("message");
-            txtMessage.Text = message;
+        txtTitle.Text = title;
+        txtMessage.Text = message;
+        txtStackTrace.Text = e.ToString();
+    }
 
-            var txtStackTrace = this.FindControl<TextBox>("stacktrace");
-            txtStackTrace.Text = e.ToString();
-        }
+    public void Ok_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
+    }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
-        public void Ok_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        public void Copy_Click(object sender, RoutedEventArgs e)
-        {
-            var txtMessage = this.FindControl<TextBox>("stacktrace");
-            Application.Current?.Clipboard?.SetTextAsync(txtMessage.Text);
-        }
+    public void Copy_Click(object sender, RoutedEventArgs e)
+    {
+        this.Clipboard?.SetTextAsync(txtMessage.Text);
     }
 }

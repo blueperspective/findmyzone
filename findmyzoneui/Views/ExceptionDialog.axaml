@@ -7,9 +7,9 @@
         Title="Error">
   
   <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20">
-    <TextBlock Name="title" FontSize="24"/>
+    <TextBlock Name="txtTitle" FontSize="24"/>
     <TextBox Grid.Row="1"
-             Name="message" IsReadOnly="true" 
+             Name="txtMessage" IsReadOnly="true" 
              BorderThickness="0" FontSize="18"
              AcceptsReturn="True">
     </TextBox>
@@ -17,7 +17,7 @@
     <Expander Grid.Row="2" Header="Stack trace" IsExpanded="True">
       <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom" Click="Copy_Click" Margin="0,4,0,0" Width="60" HorizontalAlignment="Right">Copy</Button>
-        <TextBox Name="stacktrace" IsReadOnly="true" />
+        <TextBox Name="txtStackTrace" IsReadOnly="true" />
       </DockPanel>
     </Expander>
 

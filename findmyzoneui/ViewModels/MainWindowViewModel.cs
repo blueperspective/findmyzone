@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 namespace findmyzoneui.ViewModels
 {
     [DataContract]
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, IAsyncInitialization
     {
         private const string InseeZipDataset = @"https://www.data.gouv.fr/fr/datasets/correspondance-entre-les-codes-postaux-et-codes-insee-des-communes-francaises/";
 
@@ -47,8 +47,8 @@ namespace findmyzoneui.ViewModels
                 throw new Exception("Not in design");
             }
 
-            Results = new ObservableCollection<ResultVM>
-            {
+            Results =
+            [
                 new ResultVM(
                     new ZoneFinderResult
                     {
@@ -57,7 +57,7 @@ namespace findmyzoneui.ViewModels
                     })
                 {
                 }
-            };
+            ];
         }
 
         public MainWindowViewModel(IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, IManagedNotificationManager notificationManager, SettingsVM settingsVM, IDownloader downloader, DownloadActions downloadActions)
@@ -91,9 +91,18 @@ namespace findmyzoneui.ViewModels
             };
 
             downloadActions.Indeterminate = () => IsIndeterminate = true;
+
+            Initialization = InitializeAsync();
         }
 
-        public async Task LoadRepository()
+        public Task Initialization { get; private set; }
+
+        private async Task InitializeAsync()
+        {
+            await LoadRepositoryAsync();
+        }
+
+        public async Task LoadRepositoryAsync()
         {
             try
             {

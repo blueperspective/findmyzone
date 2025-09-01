@@ -6,7 +6,8 @@
         mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
         Width="300"
         x:Class="findmyzoneui.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico" Activated="Window_Activated"
+        Icon="/Assets/avalonia-logo.ico"
+        x:DataType="vm:MainWindowViewModel"
         Title="findmyzoneui">
 
   <Design.DataContext>
@@ -27,7 +28,7 @@
       <AutoCompleteBox Margin="4,4,0,0"
                        Watermark="Ville recherchée"
                        SelectedItem="{Binding SelectedCity}"
-                       Items="{Binding Cities}"
+                       ItemsSource="{Binding Cities}"
                        ItemFilter="{Binding CityFilter}"
                        MinimumPrefixLength="3" />
 
@@ -59,7 +60,7 @@
     </StackPanel>
 
     <ScrollViewer Grid.Row="1">
-      <ItemsRepeater Items="{Binding Results}">
+      <ItemsRepeater ItemsSource="{Binding Results}">
         <ItemsRepeater.ItemTemplate>
           <DataTemplate>
             <StackPanel>
