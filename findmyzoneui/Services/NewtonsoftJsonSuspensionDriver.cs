@@ -10,41 +10,47 @@ namespace findmyzoneui.Services
 {
     public class NewtonsoftJsonSuspensionDriver : ISuspensionDriver
     {
-        private readonly string _file;
-        private readonly JsonSerializerSettings _settings = new JsonSerializerSettings
+        private readonly string file;
+        private readonly JsonSerializerSettings settings = new()
         {
             TypeNameHandling = TypeNameHandling.All
         };
 
         public NewtonsoftJsonSuspensionDriver(string file, IContractResolver contractResolver)
         {
-            _file = file; 
-            _settings.ContractResolver = contractResolver;
+            this.file = file; 
+            settings.ContractResolver = contractResolver;
         }
 
         public IObservable<Unit> InvalidateState()
         {
-            if (File.Exists(_file))
-                File.Delete(_file);
+            if (File.Exists(file))
+                File.Delete(file);
             return Observable.Return(Unit.Default);
         }
 
         public IObservable<object> LoadState()
         {
-            if (!File.Exists(_file))
+            if (!File.Exists(file))
             {
-                return Observable.Return((object)null);
+                throw new IOException($"State file {file} could not be found");
             }
 
-            var lines = File.ReadAllText(_file);
-            var state = JsonConvert.DeserializeObject<object>(lines, _settings);
+            var lines = File.ReadAllText(file);
+            var state = JsonConvert.DeserializeObject<object>(lines, settings);
+
+            if (state == null)
+            {
+                throw new IOException($"Deserialization error when loading file {file}");
+            }
+
             return Observable.Return(state);
         }
 
         public IObservable<Unit> SaveState(object state)
         {
-            var lines = JsonConvert.SerializeObject(state, _settings);
-            File.WriteAllText(_file, lines);
+            var lines = JsonConvert.SerializeObject(state, settings);
+            File.WriteAllText(file, lines);
             return Observable.Return(Unit.Default);
         }
     }
