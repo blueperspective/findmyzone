@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using findmyzoneui.ViewModels;
 using ReactiveUI;
+using System;
 
 namespace findmyzoneui.Views
 {
@@ -21,6 +22,11 @@ namespace findmyzoneui.Views
         {
             AvaloniaXamlLoader.Load(this);
             this.WhenActivated(disposable => { });
+        }
+
+        private void Window_Activated(object sender, EventArgs args)
+        {
+            _ = (this.DataContext as MainWindowViewModel)?.LoadRepository();
         }
     }
 }

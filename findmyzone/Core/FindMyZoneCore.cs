@@ -1,13 +1,7 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using findmyzone.Geo;
-using findmyzone.IO;
+﻿using findmyzone.Geo;
 using findmyzone.Model;
-using findmyzone.Resources;
-using findmyzone.Win;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 
 namespace findmyzone.Core

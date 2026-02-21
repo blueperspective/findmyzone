@@ -21,7 +21,7 @@ namespace findmyzoneui.ViewModels
             get => coreSettings.DownloadDirectory;
             set
             {
-                if (value != coreSettings.DownloadDirectory)
+                if (coreSettings.DownloadDirectory != value)
                 {
                     coreSettings.DownloadDirectory = value;
                     this.RaisePropertyChanged(nameof(DownloadDirectory));

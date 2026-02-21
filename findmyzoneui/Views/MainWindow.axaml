@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
         Width="300"
         x:Class="findmyzoneui.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/avalonia-logo.ico" Activated="Window_Activated"
         Title="findmyzoneui">
 
   <Design.DataContext>

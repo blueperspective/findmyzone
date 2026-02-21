@@ -33,15 +33,16 @@ namespace findmyzoneui.Services
         {
             if (!File.Exists(file))
             {
-                throw new IOException($"State file {file} could not be found");
+                return Observable.Throw<object>(new FileNotFoundException(file));
             }
 
             var lines = File.ReadAllText(file);
+
             var state = JsonConvert.DeserializeObject<object>(lines, settings);
 
             if (state == null)
-            {
-                throw new IOException($"Deserialization error when loading file {file}");
+            {               
+                return Observable.Throw<object>(new IOException($"Deserialization error when loading file {file}"));
             }
 
             return Observable.Return(state);

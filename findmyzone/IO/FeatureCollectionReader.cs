@@ -9,9 +9,8 @@ namespace findmyzone.IO
     {
         public FeatureCollection Read(string filepath)
         {
-            FeatureCollection featureCollection = null;
+            FeatureCollection? featureCollection = null;
 
-            var serializer = new JsonSerializer();
             using (var s = File.Open(filepath, FileMode.Open))
             using (var sr = new StreamReader(s))
             using (var reader = new JsonTextReader(sr))

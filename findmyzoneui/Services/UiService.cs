@@ -62,7 +62,7 @@ namespace findmyzoneui.Services
 
         public async Task ShowException(string title, string message, Exception e)
         {
-            var desktop = Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+            var desktop = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
 
             if (desktop == null)
             {

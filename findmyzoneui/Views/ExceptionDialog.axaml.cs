@@ -45,7 +45,7 @@ namespace findmyzoneui.Views
         public void Copy_Click(object sender, RoutedEventArgs e)
         {
             var txtMessage = this.FindControl<TextBox>("stacktrace");
-            Application.Current.Clipboard.SetTextAsync(txtMessage.Text);
+            Application.Current?.Clipboard?.SetTextAsync(txtMessage.Text);
         }
     }
 }
