@@ -27,6 +27,8 @@ public class Downloader : IDownloader
             HttpClient client = new();
             HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 
+            response.EnsureSuccessStatusCode();
+
             Log.Information("Downloading {url}", url);
 
             var totalBytes = response.Content.Headers.ContentLength;
