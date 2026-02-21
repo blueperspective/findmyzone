@@ -13,7 +13,7 @@ namespace findmyzoneui.Services
     {
         private readonly Window parent;
 
-        public UiService(Window parent)
+        public UiService(MainWindow parent)
         {
             this.parent = parent;
         }
