@@ -19,7 +19,8 @@
     </Style>
   </Window.Styles>
 
-  <Grid RowDefinitions="auto,*" Margin="2" IsEnabled="{Binding !IsLoading}">
+  <Grid RowDefinitions="auto,*,auto" 
+        Margin="2" IsEnabled="{Binding !IsLoading}">
 
     <StackPanel Grid.Row="0">
 
@@ -75,6 +76,20 @@
         </ItemsRepeater.ItemTemplate>
       </ItemsRepeater>
     </ScrollViewer>
+
+    <StackPanel IsVisible="{Binding IsDownloading}" Grid.Row="2" Margin="2,0,2,10">
+      <TextBlock Text="{Binding DownloadName}" />
+      <TextBlock>
+        <TextBlock.Text>
+          <MultiBinding StringFormat="{}{0} / {1} Kb">
+            <Binding Path="DownloadedKb" />
+            <Binding Path="TotalKb" />
+          </MultiBinding>
+        </TextBlock.Text>
+      </TextBlock>
+
+      <ProgressBar IsIndeterminate="{Binding IsIndeterminate}" Value="{Binding DownloadProgress}" />
+    </StackPanel>
 
   </Grid>
 

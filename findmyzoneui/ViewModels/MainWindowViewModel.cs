@@ -83,19 +83,29 @@ namespace findmyzoneui.ViewModels
 
                 if (!File.Exists(inseeZipFile))
                 {
-                    if (await uiService.Ask(UiMessages.AskDownloadZipInseeCodesTitle, UiMessages.AskDownloadZipInseeCodes) == MessageBox.Avalonia.Enums.ButtonResult.Yes)
+                    try
                     {
-                        var uri = new Uri(InseeZipUrl);
-                        HttpClient client = new();
-                        var response = await client.GetAsync(uri);
-                        using (var fs = new FileStream(inseeZipFile, FileMode.CreateNew))
-                        {
-                            await response.Content.CopyToAsync(fs);
-                        }
+                        IsIndeterminate = false;
+                        IsDownloading = true;
+                        DownloadName = InseeZipFilename;
+                        Downloader2 downloader = new Downloader2();
+                        await downloader.Download(
+                            InseeZipUrl,
+                            inseeZipFile,
+                            new Action<uint,long?,long?>((percent, downloaded, total) => { 
+                                DownloadProgress = percent;
+                                DownloadedKb = downloaded;
+                                TotalKb = totalKb;
+                            }),
+                            () => IsIndeterminate = true);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        await uiService.ShowMessage(UiMessages.Error, string.Format(UiMessages.MissingRequiredZipInseeCodes, InseeZipDataset, InseeZipUrl));
+                        await uiService.ShowException(UiMessages.Error, ex.Message, ex);
+                    }
+                    finally
+                    {
+                        IsDownloading = false;
                     }
                 }
 
@@ -118,6 +128,54 @@ namespace findmyzoneui.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        private bool isDownloading;
+
+        public bool IsDownloading
+        {
+            get => isDownloading;
+            set => this.RaiseAndSetIfChanged(ref isDownloading, value);
+        }
+
+        private string downloadName;
+
+        public string DownloadName
+        {
+            get => downloadName;
+            set => this.RaiseAndSetIfChanged(ref downloadName, value);
+        }
+
+        private bool isIndeterminate;
+
+        public bool IsIndeterminate
+        {
+            get => isIndeterminate;
+            set => this.RaiseAndSetIfChanged(ref isIndeterminate, value);
+        }
+
+        private uint downloadProgress;
+
+        public uint DownloadProgress
+        {
+            get => downloadProgress;
+            set => this.RaiseAndSetIfChanged(ref downloadProgress, value);
+        }
+
+        private long? downloadedKb;
+
+        public long? DownloadedKb
+        {
+            get => downloadedKb;
+            set => this.RaiseAndSetIfChanged(ref downloadedKb, value);
+        }
+
+        private long? totalKb;
+
+        public long? TotalKb
+        {
+            get => totalKb;
+            set => this.RaiseAndSetIfChanged(ref totalKb, value);
         }
 
         [DataMember]
