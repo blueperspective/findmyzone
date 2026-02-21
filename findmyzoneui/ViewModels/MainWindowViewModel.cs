@@ -21,8 +21,6 @@ namespace findmyzoneui.ViewModels
     [DataContract]
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly AvaloniaReporter reporter;
-
         private readonly IUiService uiService;
 
         private readonly IRepository repository;
@@ -35,7 +33,6 @@ namespace findmyzoneui.ViewModels
 
         public MainWindowViewModel(MainWindow window, IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, SettingsVM settingsVM)
         {
-            reporter = new AvaloniaReporter(window);
             this.uiService = uiService;
             this.repository = repository;
             this.zoneFinder = zoneFinder;
@@ -73,7 +70,19 @@ namespace findmyzoneui.ViewModels
         public uint ZoneMin
         {
             get => zoneMin;
-            set => this.RaiseAndSetIfChanged(ref zoneMin, value);
+            set
+            {
+                if (value != zoneMin)
+                {
+                    zoneMin = value;
+                    this.RaisePropertyChanged(nameof(ZoneMin));
+
+                    if (ZoneMax < zoneMin)
+                    {
+                        ZoneMax = zoneMin + 100;
+                    }
+                }
+            }
         }
 
         private uint zoneMax;
@@ -91,7 +100,19 @@ namespace findmyzoneui.ViewModels
         public uint BuildingMin
         {
             get => buildingMin;
-            set => this.RaiseAndSetIfChanged(ref buildingMin, value);
+            set
+            {
+                if (value != buildingMin)
+                {
+                    buildingMin = value;
+                    this.RaisePropertyChanged(nameof(BuildingMin));
+
+                    if (BuildingMax < buildingMin)
+                    {
+                        BuildingMax = buildingMin + 100;
+                    }
+                }
+            }
         }
 
         private uint buildingMax;
