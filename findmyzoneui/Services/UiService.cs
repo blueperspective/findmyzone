@@ -26,7 +26,7 @@ namespace findmyzoneui.Services
                 ButtonDefinitions = ButtonEnum.YesNo,
                 ContentTitle = title,
                 ContentMessage = message,
-                Icon = Icon.Plus
+                Icon = Icon.Plus,
             });
 
             var res = await msBoxStandardWindow.Show();

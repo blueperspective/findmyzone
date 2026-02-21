@@ -24,6 +24,7 @@
     <StackPanel Grid.Row="0">
 
       <AutoCompleteBox Margin="4,4,0,0"
+                       Watermark="Ville recherchée"
                        SelectedItem="{Binding SelectedCity}"
                        Items="{Binding Cities}"
                        ItemFilter="{Binding CityFilter}"
