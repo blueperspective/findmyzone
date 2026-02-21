@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using findmyzone.Core;
 using findmyzone.Geo;
 using findmyzone.IO;
@@ -31,13 +32,10 @@ namespace findmyzoneui.ViewModels
         private const string InseeZipFilename = "correspondance-code-insee-code-postal.csv";
 
         private readonly IUiService uiService;
-
         private readonly IRepository repository;
-
         private readonly IZoneFinder zoneFinder;
-
         private readonly ICoreSettings coreSettings;
-
+        private readonly IManagedNotificationManager notificationManager;
         private readonly SettingsVM settingsVM;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -62,12 +60,13 @@ namespace findmyzoneui.ViewModels
             };
         }
 
-        public MainWindowViewModel(MainWindow window, IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, SettingsVM settingsVM)
+        public MainWindowViewModel(MainWindow window, IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, IManagedNotificationManager notificationManager, SettingsVM settingsVM)
         {
             this.uiService = uiService;
             this.repository = repository;
             this.zoneFinder = zoneFinder;
             this.coreSettings = coreSettings;
+            this.notificationManager = notificationManager;
             this.settingsVM = settingsVM;
 
             _ = LoadRepository();
@@ -79,29 +78,20 @@ namespace findmyzoneui.ViewModels
             {
                 IsLoading = true;
 
-                string inseeZipFile = Path.Combine(coreSettings.DownloadDirectory, "correspondance-code-insee-code-postal.csv");
+                string inseeZipFile = Path.Combine(coreSettings.DownloadDirectory, InseeZipFilename);
 
                 if (!File.Exists(inseeZipFile))
                 {
                     try
                     {
-                        IsIndeterminate = false;
-                        IsDownloading = true;
-                        DownloadName = InseeZipFilename;
-                        Downloader2 downloader = new Downloader2();
-                        await downloader.Download(
-                            InseeZipUrl,
-                            inseeZipFile,
-                            new Action<uint,long?,long?>((percent, downloaded, total) => { 
-                                DownloadProgress = percent;
-                                DownloadedKb = downloaded;
-                                TotalKb = totalKb;
-                            }),
-                            () => IsIndeterminate = true);
+                        notificationManager.Show(new Notification(UiMessages.FirstTimeUse, UiMessages.DownloadingZipInseeCodes));
+
+                        await Download(InseeZipUrl, inseeZipFile);
                     }
                     catch (Exception ex)
                     {
                         await uiService.ShowException(UiMessages.Error, ex.Message, ex);
+                        await uiService.ShowMessage(UiMessages.Error, UiMessages.ErrorDownloadingZipInseeCodes);
                     }
                     finally
                     {
@@ -111,23 +101,42 @@ namespace findmyzoneui.ViewModels
 
                 await Task.Run(() =>
                 {
-                    using (var reader = new StreamReader(inseeZipFile))
-                    {
-                        var cityReader = new CityInfoReader(reader);
-                        cityReader.Fill(repository);
-                    }
+                    using var reader = new StreamReader(inseeZipFile);
+                    var cityReader = new CityInfoReader(reader);
+                    cityReader.Fill(repository);
                 });
 
                 Cities = repository.Cities.OrderBy(x => x.Name).ToList();
             }
             catch (Exception e)
             {
-                await uiService.ShowException("Error", e.Message, e);
+                await uiService.ShowException(UiMessages.Error, e.Message, e);
             }
             finally
             {
                 IsLoading = false;
             }
+        }
+
+        #region download
+
+        private async Task Download(string url, string destFile)
+        {
+            IsDownloading = true;
+            IsIndeterminate = false;
+            DownloadName = InseeZipFilename;
+
+            Downloader downloader = new();
+            await downloader.Download(
+                url,
+                destFile,
+                new Action<uint, long?, long?>((percent, downloaded, total) =>
+                {
+                    DownloadProgress = percent;
+                    DownloadedKb = downloaded;
+                    TotalKb = totalKb;
+                }),
+                () => IsIndeterminate = true);
         }
 
         private bool isDownloading;
@@ -177,6 +186,8 @@ namespace findmyzoneui.ViewModels
             get => totalKb;
             set => this.RaiseAndSetIfChanged(ref totalKb, value);
         }
+        
+        #endregion
 
         [DataMember]
         public SettingsVM SettingsVM { get => settingsVM; }
@@ -289,13 +300,13 @@ namespace findmyzoneui.ViewModels
         {
             try
             {
-                IsSearching = true;
-                Results.Clear();
-
                 if (SelectedCity == null)
                 {
                     return;
                 }
+
+                IsSearching = true;
+                Results.Clear();                
 
                 var finderResults = zoneFinder.FindZone(
                     SelectedCity.InseeCode,
@@ -315,7 +326,7 @@ namespace findmyzoneui.ViewModels
             }
             catch (Exception e)
             {
-                await uiService.ShowException("Error", e.Message, e);
+                await uiService.ShowException(UiMessages.Error, e.Message, e);
             }
             finally
             {

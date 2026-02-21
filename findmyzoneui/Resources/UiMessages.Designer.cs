@@ -80,6 +80,15 @@ namespace findmyzoneui.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Téléchargement du fichier de correspondance code Insee &lt;&gt; code Postal.
+        /// </summary>
+        internal static string DownloadingZipInseeCodes {
+            get {
+                return ResourceManager.GetString("DownloadingZipInseeCodes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Erreur.
         /// </summary>
         internal static string Error {
@@ -93,9 +102,18 @@ namespace findmyzoneui.Resources {
         ///- lien dataset {0} 
         ///- lien direct {1}.
         /// </summary>
-        internal static string MissingRequiredZipInseeCodes {
+        internal static string ErrorDownloadingZipInseeCodes {
             get {
-                return ResourceManager.GetString("MissingRequiredZipInseeCodes", resourceCulture);
+                return ResourceManager.GetString("ErrorDownloadingZipInseeCodes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Première utilisation.
+        /// </summary>
+        internal static string FirstTimeUse {
+            get {
+                return ResourceManager.GetString("FirstTimeUse", resourceCulture);
             }
         }
     }

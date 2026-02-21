@@ -2,7 +2,7 @@
 
 namespace findmyzone.IO
 {
-    public interface IDownloader
+    public interface IFindMyZoneDownloader
     {
         string FilesDirectory { get; set; }
 

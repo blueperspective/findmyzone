@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using findmyzone.Core;
@@ -37,11 +38,18 @@ namespace findmyzoneui
                 serviceCollection.AddSingleton<IRepository, Repository>();
                 serviceCollection.AddSingleton<IFeatureCollectionReader, FeatureCollectionReader>();
                 serviceCollection.AddSingleton<IReporter, AvaloniaReporter>();
-                serviceCollection.AddSingleton<IDownloader, Downloader>();
+                serviceCollection.AddSingleton<IFindMyZoneDownloader, FindMyZoneDownloader>();
                 serviceCollection.AddSingleton<IGunziper, Gunziper>();
                 serviceCollection.AddSingleton<ICoreSettings, CoreSettings>();
                 serviceCollection.AddSingleton<MainWindowViewModel>();
                 serviceCollection.AddSingleton<SettingsVM>();
+
+                var notificationManager = new WindowNotificationManager(mainWindow)
+                {
+                    Position = NotificationPosition.TopRight,
+                    MaxItems = 3
+                };
+                serviceCollection.AddSingleton<IManagedNotificationManager>(notificationManager);
 
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
