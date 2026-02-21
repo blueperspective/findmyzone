@@ -2,7 +2,7 @@
   "profiles": {
     "findmyzone": {
       "commandName": "Project",
-      "commandLineArgs": "-v ORGERES --pmin 780 --pmax 850 --bmin 100 --bmax 500"
+      "commandLineArgs": "-v vern-sur-seiche --pmin 780 --pmax 850 --bmin 100 --bmax 500"
     }
   }
 }

@@ -19,14 +19,16 @@ namespace findmyzone.IO
         private readonly IGunziper gunziper;
         private readonly IRepository repository;
 
-        public Downloader(IReporter reporter, IGunziper gunziper, IRepository repository)
+        public Downloader(IReporter reporter, IGunziper gunziper, IRepository repository, string directory)
         {
             this.reporter = reporter;
             this.gunziper = gunziper;
             this.repository = repository;
+
+            this.FilesDirectory = directory;
         }
 
-        public string FilesDirectory { get; set; } = @"f:\Users\endymion\Downloads";
+        public string FilesDirectory { get; set; }
 
         public async Task Download(string code)
         {

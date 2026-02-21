@@ -76,13 +76,13 @@ namespace findmyzone
                     var findInCities = new List<CityInfo>();
 
                     var cfg = new CsvConfiguration(CultureInfo.InvariantCulture, delimiter: ";");
-                    IEnumerable<CityInfo> citiesInfo;
+                    IList<CityInfo> citiesInfo;
 
                     using (var reader = new StreamReader(Path.Combine(options.Directory, "correspondance-code-insee-code-postal.csv")))
                     using (var csv = new CsvReader(reader, cfg))
                     {
                         csv.Context.RegisterClassMap<CityInfoMap>();
-                        citiesInfo = csv.GetRecords<CityInfo>();
+                        citiesInfo = csv.GetRecords<CityInfo>().ToList();
 
                         foreach (var inseeCode in options.InseeCodes)
                         {
@@ -113,10 +113,10 @@ namespace findmyzone
                             }
                         }
 
-                        foreach (var cityName in options.Cities)
+                        foreach (var cityName in options.Cities.Select(x => x.ToUpperInvariant()))
                         {
-                            var cities = citiesInfo.Where(x => string.Compare(x.Name, cityName, true) == 0).ToList();
-
+                            var cities = citiesInfo.Where(x => x.Name.ToUpperInvariant() == cityName).ToList();
+                            
                             if (cities.Count() > 1)
                             {
                                 reporter.Info($"{cities.Count()} villes correspondent, utiliser le code postal ou code insee:");
@@ -128,11 +128,11 @@ namespace findmyzone
                             }
                             else
                             {
-                                var city = citiesInfo.FirstOrDefault();
+                                var city = cities.FirstOrDefault();
 
                                 if (city == null)
                                 {
-                                    reporter.Error(Messages.WrongCityName);
+                                    reporter.Error(Messages.WrongCityName, cityName);
                                     continue;
                                 }
 
@@ -148,7 +148,7 @@ namespace findmyzone
                     }
 
                     var repository = new Repository(new FeatureCollectionReader());
-                    var downloader = new Downloader(reporter, new Gunziper(reporter), repository);
+                    var downloader = new Downloader(reporter, new Gunziper(reporter), repository, options.Directory) ;
                     var finder = new ZoneFinder(repository);
 
                     foreach (var cityInfo in findInCities)
