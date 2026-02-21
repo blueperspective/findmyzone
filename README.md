@@ -2,6 +2,13 @@
 
 Outil de recherche de parcelles.
 
+## Installation
+
+Télécharger et installer le framework dotnet 6.0 si vous ne l'avez pas déjà. [https://dotnet.microsoft.com/en-us/download].
+Dézipper le contenu du fichier findmyzone.zip.
+
+## Utilisation
+
 Au premier lancement, l'outil télécharge (dans le dossier Documents\findmyzone) le fichier des correspondances ville <> code postal <> code INSEE,
 depuis data.gouv.fr.
 
