@@ -46,21 +46,24 @@ namespace findmyzone.Geo
                         if (buildingFeature.Geometry.CoveredBy(zoneFeature.Geometry))
                         {
                             var projGeoBuilding = GeoExtensions.Transform(buildingFeature.Geometry, mt);
-
-                            if ((minBuildingSurface > 0 && maxBuildingSurface > 0
-                                    && projGeoBuilding.Area >= minBuildingSurface && projGeoBuilding.Area < maxBuildingSurface)
-                                || (minBuildingSurface > 0 && projGeoBuilding.Area >= minBuildingSurface)
-                                || (maxBuildingSurface > 0 && projGeoBuilding.Area <= maxBuildingSurface)
-                                || (minBuildingSurface == 0 && maxBuildingSurface == 0))
-                            {
-                                result.ProjBuildingGeometries.Add(projGeoBuilding);
-                            }
+                            result.ProjBuildingGeometries.Add(projGeoBuilding);
                         }
                     }
 
-                    // need at least one building
+                    if (result.ProjBuildingGeometries.Any())
+                    {
+                        var totalArea = result.ProjBuildingGeometries.Sum(x => x.Area);
 
-                    if (ignoreBuilding || result.ProjBuildingGeometries.Any())
+                        if ((minBuildingSurface > 0 && maxBuildingSurface > 0
+                                && minBuildingSurface <= totalArea && totalArea <= maxBuildingSurface)
+                            || (minBuildingSurface > 0 && maxBuildingSurface == 0 && totalArea >= minBuildingSurface)
+                            || (minBuildingSurface == 0 && maxBuildingSurface > 0 && totalArea <= maxBuildingSurface)
+                            || (minBuildingSurface == 0 && maxBuildingSurface == 0))
+                        {
+                            yield return result;
+                        }
+                    }
+                    else if (ignoreBuilding)
                     {
                         yield return result;
                     }
