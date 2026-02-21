@@ -1,0 +1,27 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Height="400" Width="900"
+        x:Class="findmyzoneui.Views.ExceptionDialog"
+        Title="Error">
+  
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20">
+    <TextBlock Name="title" FontSize="24"/>
+    <TextBox Grid.Row="1"
+             Name="message" IsReadOnly="true" 
+             BorderThickness="0" FontSize="18"
+             AcceptsReturn="True">
+    </TextBox>
+
+    <Expander Grid.Row="2" Header="Stack trace" IsExpanded="True">
+      <DockPanel LastChildFill="True">
+        <Button DockPanel.Dock="Bottom" Click="Copy_Click" Margin="0,4,0,0" Width="60" HorizontalAlignment="Right">Copy</Button>
+        <TextBox Name="stacktrace" IsReadOnly="true" />
+      </DockPanel>
+    </Expander>
+
+    <Button Grid.Row="3" Margin="0,4,4,4" Width="80"
+            Click="Ok_Click">OK</Button>
+  </Grid>
+</Window>

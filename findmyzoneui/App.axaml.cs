@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using findmyzoneui.Services;
 using findmyzoneui.ViewModels;
 using findmyzoneui.Views;
 
@@ -17,10 +18,9 @@ namespace findmyzoneui
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
+                desktop.MainWindow = new MainWindow();
+                desktop.MainWindow.DataContext = new MainWindowViewModel(desktop.MainWindow, new UiService(desktop.MainWindow));
+                desktop.MainWindow.Position = new PixelPoint(0, 0);
             }
 
             base.OnFrameworkInitializationCompleted();
