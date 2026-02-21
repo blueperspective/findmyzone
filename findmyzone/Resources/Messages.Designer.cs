@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace findmyzone {
+namespace findmyzone.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace findmyzone {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("findmyzone.Messages", typeof(Messages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("findmyzone.Resources.Messages", typeof(Messages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -79,11 +79,29 @@ namespace findmyzone {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Utilisation du dossier de téléchargement: {0}.
+        /// </summary>
+        internal static string DownloadDir {
+            get {
+                return ResourceManager.GetString("DownloadDir", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Erreur.
         /// </summary>
         internal static string Error {
             get {
                 return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aucun code INSEE n&apos;a pu être trouvé....
+        /// </summary>
+        internal static string NoInseeCodes {
+            get {
+                return ResourceManager.GetString("NoInseeCodes", resourceCulture);
             }
         }
         
@@ -102,6 +120,24 @@ namespace findmyzone {
         internal static string UngzipFile {
             get {
                 return ResourceManager.GetString("UngzipFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to La ville &quot;{0}&quot; n&apos;a pas été trouvée.
+        /// </summary>
+        internal static string WrongCityName {
+            get {
+                return ResourceManager.GetString("WrongCityName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Le code postal &quot;{0}&quot; n&apos;a pas été trouvé.
+        /// </summary>
+        internal static string WrongZipCode {
+            get {
+                return ResourceManager.GetString("WrongZipCode", resourceCulture);
             }
         }
     }

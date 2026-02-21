@@ -1,8 +1,9 @@
-﻿using ICSharpCode.SharpZipLib.Core;
+﻿using findmyzone.Resources;
+using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.GZip;
 using System.IO;
 
-namespace findmyzone
+namespace findmyzone.IO
 {
     class Gunziper : IGunziper
     {

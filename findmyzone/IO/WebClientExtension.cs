@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
-namespace findmyzone
+namespace findmyzone.IO
 {
     static class WebClientExtensions
     {

@@ -1,4 +1,4 @@
-﻿namespace findmyzone
+﻿namespace findmyzone.IO
 {
     interface IReporter
     {
@@ -6,5 +6,6 @@
         void OpEndSuccess();
         void Info(string text, params string[] args);
         void StartOp(string text, params string[] args);
+        void Error(string text, params string[] args);
     }
 }

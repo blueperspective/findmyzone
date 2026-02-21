@@ -1,9 +1,11 @@
-﻿using System;
+﻿using findmyzone.Model;
+using findmyzone.Resources;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace findmyzone
+namespace findmyzone.IO
 {
     class Downloader
     {
@@ -15,11 +17,13 @@ namespace findmyzone
 
         private readonly IReporter reporter;
         private readonly IGunziper gunziper;
+        private readonly IRepository repository;
 
-        public Downloader(IReporter reporter, IGunziper gunziper)
+        public Downloader(IReporter reporter, IGunziper gunziper, IRepository repository)
         {
             this.reporter = reporter;
             this.gunziper = gunziper;
+            this.repository = repository;
         }
 
         public string FilesDirectory { get; set; } = @"f:\Users\endymion\Downloads";
@@ -38,11 +42,15 @@ namespace findmyzone
 
             await DownloadIfNeeded(buildingUrl, buildingFile, buildingFileGz);
 
-            string zoneUrl = string.Format(TplZoneUrl, code.Substring(0, 2), code);
-            string zoneFilename = Path.Combine(FilesDirectory, string.Format(TplZoneFilename, code));
-            string zoneFilenameGz = zoneFilename + GzipExt;
+            repository.AddBuildingFile(code, buildingFile);
 
-            await DownloadIfNeeded(zoneUrl, zoneFilename, zoneFilenameGz);
+            string zoneUrl = string.Format(TplZoneUrl, code.Substring(0, 2), code);
+            string zoneFile = Path.Combine(FilesDirectory, string.Format(TplZoneFilename, code));
+            string zoneFileGz = zoneFile + GzipExt;
+
+            await DownloadIfNeeded(zoneUrl, zoneFile, zoneFileGz);
+
+            repository.AddZoneFile(code, zoneFile);
         }
 
         private async Task DownloadIfNeeded(string url, string file, string fileGz)

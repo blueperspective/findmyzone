@@ -1,4 +1,4 @@
-﻿namespace findmyzone
+﻿namespace findmyzone.IO
 {
     interface IGunziper
     {

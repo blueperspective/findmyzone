@@ -1,12 +1,20 @@
-﻿using System;
+﻿using findmyzone.IO;
+using findmyzone.Resources;
+using System;
 
-namespace findmyzone
+namespace findmyzone.Cli
 {
     class ConsoleReporter : IReporter
     {
         public void Info(string text, params string[] args)
         {
             Console.WriteLine(text, args);
+        }
+
+        public void Error(string text, params string[] args)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            WriteLineResetColor(text, args);
         }
 
         public void StartOp(string text, params string[] args)
@@ -18,18 +26,18 @@ namespace findmyzone
         public void OpEndSuccess()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            WriteEnd(Messages.Ok);
+            WriteLineResetColor(" " + Messages.Ok);
         }
 
         public void OpEndError()
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            WriteEnd(Messages.Error);
+            WriteLineResetColor(" " + Messages.Error);
         }
 
-        private void WriteEnd(string text)
+        private void WriteLineResetColor(string text, params string[] args)
         {
-            Console.WriteLine(text);
+            Console.WriteLine(text, args);
             Console.ResetColor();
         }
     }
