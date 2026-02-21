@@ -1,31 +1,14 @@
-using Avalonia;
-using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using findmyzoneui.ViewModels;
 using ReactiveUI;
-using System;
 
-namespace findmyzoneui.Views
+namespace findmyzoneui.Views;
+
+public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 {
-    public class MainWindow : ReactiveWindow<MainWindowViewModel>
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-            this.WhenActivated(disposable => { });
-        }
-
-        private void Window_Activated(object sender, EventArgs args)
-        {
-            _ = (this.DataContext as MainWindowViewModel)?.LoadRepository();
-        }
+        InitializeComponent();
+        this.WhenActivated(disposable => { });
     }
 }
