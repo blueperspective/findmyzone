@@ -1,5 +1,9 @@
 ﻿using CommandLine;
+using CsvHelper;
+using CsvHelper.Configuration;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace findmyzone
@@ -41,7 +45,17 @@ namespace findmyzone
             await result.MapResult(async
                 x =>
                 {
-                    var downloader = new Downloader(new ConsoleReporter());
+                    var cfg = new CsvConfiguration(CultureInfo.InvariantCulture, delimiter: ";");
+                    
+                    using (var reader = new StreamReader(@"f:\Users\endymion\Downloads\correspondance-code-insee-code-postal.csv"))
+                    using (var csv = new CsvReader(reader, cfg))
+                    {
+                        csv.Context.RegisterClassMap<CityInfoMap>();
+                        var records = csv.GetRecords<CityInfo>();
+                    }
+
+                    var reporter = new ConsoleReporter();
+                    var downloader = new Downloader(reporter, new Gunziper(reporter));
                     await downloader.Download("35026");
                 },
                 errors => Task.FromResult(0)
