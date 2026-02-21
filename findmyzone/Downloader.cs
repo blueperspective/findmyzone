@@ -16,6 +16,13 @@ namespace findmyzone
         public const string TplZoneUrl = "https://cadastre.data.gouv.fr/data/etalab-cadastre/latest/geojson/communes/{0}/{1}/cadastre-{1}-parcelles.json.gz";
         public const string TplZoneFilename = "cadastre-{0}-parcelles.json";
 
+        private readonly IReporter reporter;
+
+        public Downloader(IReporter reporter)
+        {
+            this.reporter = reporter;
+        }
+
         public string FilesDirectory { get; set; } = @"f:\Users\endymion\Downloads";
 
         public async Task Download(string code)
@@ -45,6 +52,7 @@ namespace findmyzone
 
             if (File.Exists(file))
             {
+                reporter.Info(Messages.AlreadyDownloaded, new FileInfo(file).Name);
                 return;
             }
 
@@ -67,21 +75,34 @@ namespace findmyzone
 
         private void UngzipFile(string gzipFile)
         {
-            // Use a 4K buffer. Any larger is a waste.    
-            byte[] dataBuffer = new byte[4096];
+            reporter.StartOp(Messages.UngzipFile, gzipFile);
 
-            using (System.IO.Stream fs = new FileStream(gzipFile, FileMode.Open, FileAccess.Read))
+            try
             {
-                using (GZipInputStream gzipStream = new GZipInputStream(fs))
-                {
-                    // Change this to your needs
-                    string fnOut = Path.Combine(FilesDirectory, Path.GetFileNameWithoutExtension(gzipFile));
 
-                    using (FileStream fsOut = File.Create(fnOut))
+                // Use a 4K buffer. Any larger is a waste.    
+                byte[] dataBuffer = new byte[4096];
+
+                using (System.IO.Stream fs = new FileStream(gzipFile, FileMode.Open, FileAccess.Read))
+                {
+                    using (GZipInputStream gzipStream = new GZipInputStream(fs))
                     {
-                        StreamUtils.Copy(gzipStream, fsOut, dataBuffer);
+                        // Change this to your needs
+                        string fnOut = Path.Combine(FilesDirectory, Path.GetFileNameWithoutExtension(gzipFile));
+
+                        using (FileStream fsOut = File.Create(fnOut))
+                        {
+                            StreamUtils.Copy(gzipStream, fsOut, dataBuffer);
+                        }
                     }
                 }
+
+                reporter.OpEndSuccess();
+            }
+            catch (Exception e)
+            {
+                reporter.OpEndError();
+                throw;
             }
         }
     }

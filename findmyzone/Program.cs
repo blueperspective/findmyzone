@@ -1,5 +1,4 @@
 ﻿using CommandLine;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -42,7 +41,7 @@ namespace findmyzone
             await result.MapResult(async
                 x =>
                 {
-                    var downloader = new Downloader();
+                    var downloader = new Downloader(new ConsoleReporter());
                     await downloader.Download("35026");
                 },
                 errors => Task.FromResult(0)
