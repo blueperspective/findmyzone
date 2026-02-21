@@ -9,6 +9,8 @@ namespace findmyzone.Geo
 {
     class ZoneFinder : IZoneFinder
     {
+        public const string AreaAttribute = "contenance";
+
         private readonly IRepository repository;
 
         private MathTransform mt = null;
@@ -29,15 +31,28 @@ namespace findmyzone.Geo
             mt = ct.MathTransform;
         }
 
-        public IEnumerable<ZoneFinderResult> FindZone(string codeInsee, uint minLotSurface, uint maxLotSurface, uint minBuildingSurface, uint maxBuildingSurface, bool ignoreBuilding)
+        public IEnumerable<ZoneFinderResult> FindZone(
+            string codeInsee, 
+            uint minLotArea, 
+            uint maxLotArea, 
+            bool useComputedArea, 
+            uint minBuildingArea,
+            uint maxBuildingArea,
+            bool ignoreBuilding)
         {
             var zoneFeatures = repository.GetZoneFeatures(codeInsee);
             var buildingFeatures = repository.GetBuildingFeatures(codeInsee);
             foreach (var zoneFeature in zoneFeatures)
             {
                 var projGeo = GeoExtensions.Transform(zoneFeature.Geometry, mt);
+                long advertisedArea = (long)zoneFeature.Attributes[AreaAttribute];
+                if (advertisedArea == 0)
+                {
+                    useComputedArea = true;
+                }
 
-                if (projGeo.Area >= minLotSurface && projGeo.Area < maxLotSurface)
+                if ((useComputedArea && projGeo.Area >= minLotArea && projGeo.Area < maxLotArea)
+                    || (!useComputedArea && advertisedArea >= minLotArea && advertisedArea < maxLotArea))
                 {
                     var result = new ZoneFinderResult { Feature = zoneFeature, ProjZoneGeometry = projGeo };
 
@@ -54,11 +69,11 @@ namespace findmyzone.Geo
                     {
                         var totalArea = result.ProjBuildingGeometries.Sum(x => x.Area);
 
-                        if ((minBuildingSurface > 0 && maxBuildingSurface > 0
-                                && minBuildingSurface <= totalArea && totalArea <= maxBuildingSurface)
-                            || (minBuildingSurface > 0 && maxBuildingSurface == 0 && totalArea >= minBuildingSurface)
-                            || (minBuildingSurface == 0 && maxBuildingSurface > 0 && totalArea <= maxBuildingSurface)
-                            || (minBuildingSurface == 0 && maxBuildingSurface == 0))
+                        if ((minBuildingArea > 0 && maxBuildingArea > 0
+                                && minBuildingArea <= totalArea && totalArea <= maxBuildingArea)
+                            || (minBuildingArea > 0 && maxBuildingArea == 0 && totalArea >= minBuildingArea)
+                            || (minBuildingArea == 0 && maxBuildingArea > 0 && totalArea <= maxBuildingArea)
+                            || (minBuildingArea == 0 && maxBuildingArea == 0))
                         {
                             yield return result;
                         }

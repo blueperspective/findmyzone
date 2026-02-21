@@ -30,16 +30,19 @@ namespace findmyzone
             public IList<string> InseeCodes { get; set; }
 
             [Option("pmin", Required = false, HelpText = "Surface minimale de parcelle (en m2)")]
-            public uint MinLotSurface { get; set; }
+            public uint MinLotArea { get; set; }
 
-            [Option("pmax", Required = false, HelpText = "Surface minimale de parcelle (en m2)")]
-            public uint MaxLotSurface { get; set; }
+            [Option("pmax", Required = false, HelpText = "Area minimale de parcelle (en m2)")]
+            public uint MaxLotArea { get; set; }
 
-            [Option("bmin", Required = false, HelpText = "Surface minimale de batiment (en m2)")]
-            public uint MinBuildingSurface { get; set; }
+            [Option("sc", Default = false, HelpText = "Utiliser la surface calculée (sinon, utiliser la surface du fichier cadastral)")]
+            public bool UseComputedArea { get; set; }
 
-            [Option("bmax", Required = false, HelpText = "Surface maximale de batiment (en m2)")]
-            public uint MaxBuildingSurface { get; set; }
+            [Option("bmin", Required = false, HelpText = "Area minimale de batiment (en m2)")]
+            public uint MinBuildingArea { get; set; }
+
+            [Option("bmax", Required = false, HelpText = "Area maximale de batiment (en m2)")]
+            public uint MaxBuildingArea { get; set; }
 
             [Option("dl",
                     Default = true, HelpText = "Télécharger automatiquement les fichiers manquants")]
@@ -66,6 +69,9 @@ namespace findmyzone
                         options.Directory = KnownFolders.GetPath(KnownFolder.Downloads);
                         reporter.Info(Messages.DownloadDir, options.Directory);
                     }
+
+                    // force culture for google map coordinates
+                    CultureInfo.CurrentCulture = new CultureInfo("en-US");
 
                     var findInCities = new List<CityInfo>();
 
@@ -109,15 +115,29 @@ namespace findmyzone
 
                         foreach (var cityName in options.Cities)
                         {
-                            var city = citiesInfo.FirstOrDefault(x => string.Compare(x.Name, cityName, true) == 0);
+                            var cities = citiesInfo.Where(x => string.Compare(x.Name, cityName, true) == 0).ToList();
 
-                            if (city == null)
+                            if (cities.Count() > 1)
                             {
-                                reporter.Error(Messages.WrongCityName);
-                                continue;
+                                reporter.Info($"{cities.Count()} villes correspondent, utiliser le code postal ou code insee:");
+                                foreach (var cityInfo in cities)
+                                {
+                                    reporter.Info($"- {cityInfo.ZipCode} {cityInfo.Name} (code INSEE: {cityInfo.InseeCode})");
+                                }
+                                return;
                             }
+                            else
+                            {
+                                var city = citiesInfo.FirstOrDefault();
 
-                            findInCities.Add(city);
+                                if (city == null)
+                                {
+                                    reporter.Error(Messages.WrongCityName);
+                                    continue;
+                                }
+
+                                findInCities.Add(city);
+                            }
                         }
                     }
 
@@ -137,7 +157,14 @@ namespace findmyzone
 
                         await downloader.Download(cityInfo.InseeCode);
 
-                        var results = finder.FindZone(cityInfo.InseeCode, options.MinLotSurface, options.MaxLotSurface, options.MinBuildingSurface, options.MaxBuildingSurface, options.IgnoreBuildings);
+                        var results = finder.FindZone(
+                            cityInfo.InseeCode, 
+                            options.MinLotArea,
+                            options.MaxLotArea, 
+                            options.UseComputedArea,
+                            options.MinBuildingArea,
+                            options.MaxBuildingArea, 
+                            options.IgnoreBuildings);
 
                         foreach (var result in results)
                         {
