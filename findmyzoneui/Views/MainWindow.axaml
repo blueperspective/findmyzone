@@ -13,42 +13,37 @@
     <vm:MainWindowViewModel/>
   </Design.DataContext>
 
-  <Grid RowDefinitions="auto,*">
+  <Grid RowDefinitions="auto,*" Margin="2">
 
     <StackPanel Grid.Row="0">
 
-      <TextBlock Text="Ville" />
-      <TextBox Text="{Binding City}"/>
+      <TextBox Text="{Binding City}" Margin="4,4,0,0"
+               Watermark="Ville" UseFloatingWatermark="True"/>
 
-      <TextBlock Text="Code Postal" />
-      <TextBox Text="{Binding ZipCode}"/>
+      <TextBox Text="{Binding ZipCode}" Margin="4,4,0,0"
+               Watermark="Code Postal" UseFloatingWatermark="True"/>
 
-      <TextBlock Text="Code INSEE" />
-      <TextBox Text="{Binding InseeCode}"/>
+      <TextBox Text="{Binding InseeCode}" Margin="4,4,0,0"
+               Watermark="Code INSEE" UseFloatingWatermark="True"/>
 
-      <Grid RowDefinitions="auto,auto,auto,auto" ColumnDefinitions="*,*">
+      <UniformGrid Columns="2" Rows="2">
+        <TextBox Margin="4,4,0,0"
+                 Text="{Binding ZoneMin}"
+                 Watermark="Parcelle min" UseFloatingWatermark="True"/>
+        <TextBox Margin="2,4,0,0"
+                 Text="{Binding ZoneMax}"
+                 Watermark="max" UseFloatingWatermark="True"/>
 
-        <TextBlock Grid.Row="0" Grid.Column="0"
-                   Text="Parcelle min" />
-        <TextBox Grid.Row="1" Grid.Column="0"
-                 Text="{Binding ZoneMin}" />
-        <TextBlock Grid.Row="00" Grid.Column="1"
-                   Text="max" />
-        <TextBox Grid.Row="1" Grid.Column="1"
-                 Text="{Binding ZoneMax}" />
+        <TextBox Margin="4,4,0,0"
+                 Text="{Binding BuildingMin}"
+                 Watermark="Surface au sol" UseFloatingWatermark="True"/>
+        <TextBox Margin="2,4,0,0"
+                 Text="{Binding BuildingMax}"
+                 Watermark="max" UseFloatingWatermark="True"/>
+      </UniformGrid>
 
-        <TextBlock Grid.Row="2" Grid.Column="0"
-                   Text="Batiments min" />
-        <TextBox Grid.Row="3" Grid.Column="0"
-                 Text="{Binding BuildingMin}" />
-        <TextBlock Grid.Row="2" Grid.Column="1"
-                   Text="max" />
-        <TextBox Grid.Row="3" Grid.Column="1"
-                 Text="{Binding BuildingMax}" />
-      </Grid>
-
-      <Button Command="{Binding FindZones}" Margin="0,4,0,0">
-        <TextBlock Text="Find" />
+      <Button Command="{Binding FindZones}" Margin="0,4,0,0" HorizontalAlignment="Center">
+        <TextBlock Text="Rechercher" />
       </Button>
 
     </StackPanel>
