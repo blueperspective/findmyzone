@@ -18,6 +18,7 @@ namespace findmyzoneui.ViewModels
             if (result.Feature.Geometry != null)
             {
                 gmapLink = $"https://www.google.fr/maps/search/{result.Feature.Geometry.Centroid.Y}+{result.Feature.Geometry.Centroid.X}";
+                geoportailLink = $"https://www.geoportail.gouv.fr/carte?c={result.Feature.Geometry.Centroid.X},{result.Feature.Geometry.Centroid.Y}&z=20&l0=ORTHOIMAGERY.ORTHOPHOTOS::GEOPORTAIL:OGC:WMTS(1)&permalink=yes";
             }
         }
 
@@ -47,9 +48,9 @@ namespace findmyzoneui.ViewModels
             set { this.RaiseAndSetIfChanged(ref geoportailLink, value); }
         }
 
-        public void Open()
+        public void Open(string? url)
         {
-            var url = GmapLink;
+            //var url = GmapLink;
 
             if (string.IsNullOrEmpty(url))
             {
