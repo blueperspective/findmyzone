@@ -1,4 +1,4 @@
-<FluentWindow xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:findmyzoneui.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -13,6 +13,12 @@
     <vm:MainWindowViewModel/>
   </Design.DataContext>
 
+  <Window.Styles>
+    <Style Selector="Button.visited">
+      <Setter Property="Foreground" Value="DarkGray"/>
+    </Style>
+  </Window.Styles>
+
   <Grid RowDefinitions="auto,*" Margin="2" IsEnabled="{Binding !IsLoading}">
 
     <StackPanel Grid.Row="0">
@@ -24,7 +30,7 @@
                        MinimumPrefixLength="3" />
 
       <UniformGrid Columns="2" Rows="2">
-        <TextBox Margin="4,4,0,0"
+        <TextBox Margin="4,4,0,0" Classes="h1"
                  Text="{Binding ZoneMin}"
                  Watermark="Parcelle min" UseFloatingWatermark="True"/>
         <TextBox Margin="2,4,0,0"
@@ -53,7 +59,7 @@
           <DataTemplate>
             <StackPanel>              
               <TextBlock Text="{Binding Result}" />
-              <Button Command="{Binding Open}" >
+              <Button Command="{Binding Open}" Classes.visited="{Binding IsVisited}">
                 <TextBlock Text="Gmap"/>
               </Button>
             </StackPanel>
@@ -64,4 +70,4 @@
 
   </Grid>
 
-</FluentWindow>
+</Window>
