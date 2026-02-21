@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:findmyzoneui.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="450"
+        Width="300"
+        x:Class="findmyzoneui.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="findmyzoneui">
+
+  <Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
+
+  <Grid RowDefinitions="auto,*">
+
+    <StackPanel Grid.Row="0">
+
+      <TextBlock Text="Ville" />
+      <TextBox Text="{Binding City}"/>
+
+      <TextBlock Text="Code Postal" />
+      <TextBox Text="{Binding ZipCode}"/>
+
+      <TextBlock Text="Code INSEE" />
+      <TextBox Text="{Binding InseeCode}"/>
+
+      <Grid RowDefinitions="auto,auto,auto,auto" ColumnDefinitions="*,*">
+
+        <TextBlock Grid.Row="0" Grid.Column="0"
+                   Text="Parcelle min" />
+        <TextBox Grid.Row="1" Grid.Column="0"
+                 Text="{Binding ZoneMin}" />
+        <TextBlock Grid.Row="00" Grid.Column="1"
+                   Text="max" />
+        <TextBox Grid.Row="1" Grid.Column="1"
+                 Text="{Binding ZoneMax}" />
+
+        <TextBlock Grid.Row="2" Grid.Column="0"
+                   Text="Batiments min" />
+        <TextBox Grid.Row="3" Grid.Column="0"
+                 Text="{Binding BuildingMin}" />
+        <TextBlock Grid.Row="2" Grid.Column="1"
+                   Text="max" />
+        <TextBox Grid.Row="3" Grid.Column="1"
+                 Text="{Binding BuildingMax}" />
+      </Grid>
+
+      <Button Command="{Binding FindZones}">
+        <TextBlock Text="Find" />
+      </Button>
+
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1">
+      <ItemsRepeater Items="{Binding Results}">
+        <TextBlock Text="{Binding}" />
+      </ItemsRepeater>
+    </ScrollViewer>
+
+  </Grid>
+
+</Window>

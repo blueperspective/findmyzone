@@ -15,7 +15,7 @@ namespace findmyzone.IO
 
         public void UngzipFile(string gzipFile, string filesDirectory)
         {
-            reporter.StartOp(Messages.UngzipFile, gzipFile);
+            reporter?.StartOp(Messages.UngzipFile, gzipFile);
 
             try
             {
@@ -36,11 +36,11 @@ namespace findmyzone.IO
                     }
                 }
 
-                reporter.OpEndSuccess();
+                reporter?.OpEndSuccess();
             }
             catch
             {
-                reporter.OpEndError();
+                reporter?.OpEndError();
                 throw;
             }
         }
