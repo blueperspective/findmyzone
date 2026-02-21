@@ -52,12 +52,7 @@ namespace findmyzone.Geo
                     advertisedArea = (long)zoneFeature.Attributes[AreaAttribute];
                 }
 
-                if (advertisedArea == 0)
-                {
-                    useComputedArea = true;
-                }
-
-                if ((useComputedArea && projGeo.Area >= minLotArea && projGeo.Area < maxLotArea)
+                if (((useComputedArea || advertisedArea == 0) && projGeo.Area >= minLotArea && projGeo.Area < maxLotArea)
                     || (!useComputedArea && advertisedArea >= minLotArea && advertisedArea < maxLotArea))
                 {
                     var result = new ZoneFinderResult { Feature = zoneFeature, ProjZoneGeometry = projGeo };

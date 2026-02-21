@@ -17,6 +17,8 @@ namespace findmyzoneui.ViewModels
 
         private readonly IUiService uiService;
 
+        public MainWindowViewModel() { }
+
         public MainWindowViewModel(MainWindow window, IUiService uiService)
         {
             reporter = new AvaloniaReporter(window);
