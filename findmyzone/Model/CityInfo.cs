@@ -1,21 +1,39 @@
-﻿using CsvHelper.Configuration;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
+using CsvHelper.TypeConversion;
 
 namespace findmyzone.Model
 {
     public class CityInfo
     {
+        [Name("Code INSEE")]
         public string InseeCode { get; set; }
-        public string ZipCode { get; set; }
+
+        [Name("Code Postal")]
+        [TypeConverter(typeof(ToStringArrayConverter))]
+        public string[] ZipCodes { get; set; }
+
+        [Name("Commune")]
         public string Name { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Name} ({InseeCode} / {string.Join('-', ZipCodes)})";
+        }
     }
 
-    public sealed class CityInfoMap : ClassMap<CityInfo>
+    public class ToStringArrayConverter : TypeConverter
     {
-        public CityInfoMap()
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            Map(m => m.InseeCode).Name("Code INSEE");
-            Map(m => m.ZipCode).Name("Code Postal");
-            Map(m => m.Name).Name("Commune");
+            if (string.IsNullOrEmpty(text)) return new string[0];
+            return text.Split('/');
+        }
+
+        public override string ConvertToString(object value, IWriterRow row, MemberMapData memberMapData)
+        {
+            return string.Join("/", (string[])value);
         }
     }
 }

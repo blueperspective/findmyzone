@@ -1,5 +1,4 @@
-﻿using NetTopologySuite.Features;
-using findmyzone.Model;
+﻿using findmyzone.Model;
 using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.Linq;
 
 namespace findmyzone.Geo
 {
-    class ZoneFinder : IZoneFinder
+    public class ZoneFinder : IZoneFinder
     {
         public const string AreaAttribute = "contenance";
 
@@ -31,7 +30,7 @@ namespace findmyzone.Geo
             mt = ct.MathTransform;
         }
 
-        public IEnumerable<ZoneFinderResult> FindZone(
+        public async IAsyncEnumerable<ZoneFinderResult> FindZone(
             string codeInsee,
             uint minLotArea,
             uint maxLotArea,
@@ -40,8 +39,9 @@ namespace findmyzone.Geo
             uint maxBuildingArea,
             bool ignoreBuilding)
         {
-            var zoneFeatures = repository.GetZoneFeatures(codeInsee);
-            var buildingFeatures = repository.GetBuildingFeatures(codeInsee);
+            var zoneFeatures = await repository.GetZoneFeatures(codeInsee);
+            var buildingFeatures = await repository.GetBuildingFeatures(codeInsee);
+
             foreach (var zoneFeature in zoneFeatures)
             {
                 var projGeo = GeoExtensions.Transform(zoneFeature.Geometry, mt);

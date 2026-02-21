@@ -2,6 +2,10 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using findmyzone.Core;
+using findmyzone.Geo;
+using findmyzone.IO;
+using findmyzone.Model;
 using findmyzoneui.Json;
 using findmyzoneui.Services;
 using findmyzoneui.ViewModels;
@@ -28,15 +32,23 @@ namespace findmyzoneui
                 desktop.MainWindow = mainWindow;
 
                 serviceCollection.AddSingleton(mainWindow);
-                serviceCollection.AddSingleton<MainWindowViewModel>();
                 serviceCollection.AddSingleton<IUiService, UiService>();
+                serviceCollection.AddSingleton<IZoneFinder, ZoneFinder>();
+                serviceCollection.AddSingleton<IRepository, Repository>();
+                serviceCollection.AddSingleton<IFeatureCollectionReader, FeatureCollectionReader>();
+                serviceCollection.AddSingleton<IReporter, AvaloniaReporter>();
+                serviceCollection.AddSingleton<IDownloader, Downloader>();
+                serviceCollection.AddSingleton<IGunziper, Gunziper>();
+                serviceCollection.AddSingleton<ICoreSettings, CoreSettings>();
+                serviceCollection.AddSingleton<MainWindowViewModel>();
+                serviceCollection.AddSingleton<SettingsVM>();
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 var contractResolve = new ServiceProviderResolver(serviceProvider);
 
                 // Create the AutoSuspendHelper.
                 var suspension = new AutoSuspendHelper(ApplicationLifetime);
-                RxApp.SuspensionHost.CreateNewAppState = () => new MainWindowViewModel(serviceProvider.GetRequiredService<MainWindow>(), serviceProvider.GetRequiredService<IUiService>());
+                RxApp.SuspensionHost.CreateNewAppState = () => serviceProvider.GetService<MainWindowViewModel>();
                 RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json", contractResolve));
                 suspension.OnFrameworkInitializationCompleted();
 

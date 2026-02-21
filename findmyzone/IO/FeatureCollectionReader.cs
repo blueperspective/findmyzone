@@ -5,7 +5,7 @@ using System.IO;
 
 namespace findmyzone.IO
 {
-    class FeatureCollectionReader : IFeatureCollectionReader
+    public class FeatureCollectionReader : IFeatureCollectionReader
     {
         public FeatureCollection Read(string filepath)
         {
@@ -18,7 +18,6 @@ namespace findmyzone.IO
             {
                 var geoJsonReader = new GeoJsonReader();
                 featureCollection = geoJsonReader.Read<FeatureCollection>(reader);
-
             }
 
             return featureCollection;

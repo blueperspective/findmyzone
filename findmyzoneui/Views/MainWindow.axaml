@@ -13,18 +13,15 @@
     <vm:MainWindowViewModel/>
   </Design.DataContext>
 
-  <Grid RowDefinitions="auto,*" Margin="2">
+  <Grid RowDefinitions="auto,*" Margin="2" IsEnabled="{Binding !IsLoading}">
 
     <StackPanel Grid.Row="0">
 
-      <TextBox Text="{Binding City}" Margin="4,4,0,0"
-               Watermark="Ville" UseFloatingWatermark="True"/>
-
-      <TextBox Text="{Binding ZipCode}" Margin="4,4,0,0"
-               Watermark="Code Postal" UseFloatingWatermark="True"/>
-
-      <TextBox Text="{Binding InseeCode}" Margin="4,4,0,0"
-               Watermark="Code INSEE" UseFloatingWatermark="True"/>
+      <AutoCompleteBox Margin="4,4,0,0"
+                       SelectedItem="{Binding SelectedCity}"
+                       Items="{Binding Cities}"
+                       ItemFilter="{Binding CityFilter}"
+                       MinimumPrefixLength="3" />
 
       <UniformGrid Columns="2" Rows="2">
         <TextBox Margin="4,4,0,0"
@@ -42,7 +39,9 @@
                  Watermark="max" UseFloatingWatermark="True"/>
       </UniformGrid>
 
-      <Button Command="{Binding FindZones}" Margin="0,4,0,0" HorizontalAlignment="Center">
+      <Button Margin="0,4,0,0" HorizontalAlignment="Center"
+              IsEnabled="{Binding !IsSearching}"
+              Command="{Binding FindZones}">
         <TextBlock Text="Rechercher" />
       </Button>
 

@@ -1,12 +1,13 @@
 ﻿using NetTopologySuite.Features;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace findmyzone.Model
 {
-    interface IRepository
+    public interface IRepository
     {
-        void AddBuildingFile(string code, string buildingFile);
-        void AddZoneFile(string code, string zoneFile);
-        FeatureCollection GetBuildingFeatures(string code);
-        FeatureCollection GetZoneFeatures(string code);
+        List<CityInfo> Cities { get; }
+        Task<FeatureCollection> GetBuildingFeatures(string code);
+        Task<FeatureCollection> GetZoneFeatures(string code);
     }
 }

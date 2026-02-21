@@ -1,13 +1,20 @@
 using Avalonia.Controls;
 using findmyzone.Core;
+using findmyzone.Geo;
+using findmyzone.IO;
+using findmyzone.Model;
+using findmyzone.Resources;
+using findmyzone.Win;
 using findmyzoneui.Services;
 using findmyzoneui.Views;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace findmyzoneui.ViewModels
 {
@@ -18,40 +25,47 @@ namespace findmyzoneui.ViewModels
 
         private readonly IUiService uiService;
 
-        public MainWindowViewModel() { }
+        private readonly IRepository repository;
 
-        public MainWindowViewModel(MainWindow window, IUiService uiService)
+        private readonly IZoneFinder zoneFinder;
+
+        private readonly ICoreSettings coreSettings;
+
+        private readonly SettingsVM settingsVM;
+
+        public MainWindowViewModel(MainWindow window, IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, SettingsVM settingsVM)
         {
             reporter = new AvaloniaReporter(window);
             this.uiService = uiService;
+            this.repository = repository;
+            this.zoneFinder = zoneFinder;
+            this.coreSettings = coreSettings;
+            this.settingsVM = settingsVM;
+
+            _ = LoadRepository();
         }
+
+        [DataMember]
+        public SettingsVM SettingsVM { get => settingsVM; }
+
+        private bool isLoading = false;
+
+        public bool IsLoading
+        {
+            get => isLoading;
+            set => this.RaiseAndSetIfChanged(ref isLoading, value);
+        }
+
+        private bool isSearching = false;
+
+        public bool IsSearching
+        {
+            get => isSearching;
+            set => this.RaiseAndSetIfChanged(ref isSearching, value);
+        }
+
 
         private string city = string.Empty;
-
-        [DataMember]
-        public string City
-        {
-            get => city;
-            set => this.RaiseAndSetIfChanged(ref city, value);
-        }
-
-        private string zipCode = string.Empty;
-
-        [DataMember]
-        public string ZipCode
-        {
-            get => zipCode;
-            set => this.RaiseAndSetIfChanged(ref zipCode, value);
-        }
-
-        private string inseeCode = string.Empty;
-
-        [DataMember]
-        public string InseeCode
-        {
-            get => inseeCode;
-            set => this.RaiseAndSetIfChanged(ref inseeCode, value);
-        }
 
         private uint zoneMin;
 
@@ -89,35 +103,83 @@ namespace findmyzoneui.ViewModels
             set => this.RaiseAndSetIfChanged(ref buildingMax, value);
         }
 
+        private CityInfo? selectedCity;
+
+        public CityInfo? SelectedCity
+        {
+            get => selectedCity;
+            set => this.RaiseAndSetIfChanged(ref selectedCity, value);
+        }
+
+        private List<CityInfo>? cities;
+
+        public List<CityInfo>? Cities
+        {
+            get => cities;
+            set => this.RaiseAndSetIfChanged(ref cities, value);
+        }
+
+        public AutoCompleteFilterPredicate<object> CityFilter { get; } = new AutoCompleteFilterPredicate<object>((search, item) =>
+        {
+            if (item is CityInfo city)
+            {
+                return city.Name.StartsWith(search, StringComparison.InvariantCultureIgnoreCase)
+                || city.InseeCode.StartsWith(search)
+                || city.ZipCodes.Any(x => x.StartsWith(search));
+            }
+
+            return false;
+        });
+
+        public async Task LoadRepository()
+        {
+            try
+            {
+                IsLoading = true;
+
+                await Task.Run(() =>
+                {
+                    using (var reader = new StreamReader(Path.Combine(coreSettings.DownloadDirectory, "correspondance-code-insee-code-postal.csv")))
+                    {
+                        var cityReader = new CityInfoReader(reader);
+                        cityReader.Fill(repository);
+                    }
+                });
+
+                Cities = repository.Cities;
+            }
+            catch (Exception e)
+            {
+                await uiService.ShowException("Error", e.Message, e);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
         public async void FindZones()
         {
             try
             {
+                IsSearching = true;
                 Results.Clear();
 
-                var inseeCodes = InseeCode.Length > 0 ? InseeCode.Split(",") : Enumerable.Empty<string>();
-                var zipCodes = ZipCode.Length > 0 ? ZipCode.Split(",") : Enumerable.Empty<string>();
-                var cities = City.Length > 0 ? City.Split(",") : Enumerable.Empty<string>();
-
-                if (!inseeCodes.Any() && !zipCodes.Any() && !cities.Any())
+                if (SelectedCity == null)
                 {
                     return;
                 }
 
-                var findMyZoneCore = new FindMyZoneCore(reporter, null);
-
-                var finderResults = await findMyZoneCore.Find(
-                    inseeCodes,
-                    zipCodes,
-                    cities,
-                    false,
+                var finderResults = zoneFinder.FindZone(
+                    SelectedCity.InseeCode,
                     ZoneMin,
                     ZoneMax,
+                    false,
                     BuildingMin,
                     BuildingMax,
                     false);
 
-                foreach (var r in finderResults)
+                await foreach (var r in finderResults)
                 {
                     Results.Add(new ResultVM(r));
                 }
@@ -125,6 +187,10 @@ namespace findmyzoneui.ViewModels
             catch (Exception e)
             {
                 await uiService.ShowException("Error", e.Message, e);
+            }
+            finally
+            {
+                IsSearching = false;
             }
         }
 

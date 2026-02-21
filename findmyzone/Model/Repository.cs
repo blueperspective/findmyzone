@@ -1,52 +1,43 @@
-﻿using findmyzone.IO;
+﻿using findmyzone.Core;
+using findmyzone.IO;
 using NetTopologySuite.Features;
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace findmyzone.Model
 {
-    class Repository : IRepository
+    public class Repository : IRepository
     {
+        private readonly ICoreSettings coreSettings;
+
+        private readonly IDownloader downloader;
+
         private readonly IFeatureCollectionReader reader;
 
         private readonly IDictionary<string, RepoElement> codeElement = new Dictionary<string, RepoElement>();
 
-        public Repository(IFeatureCollectionReader reader)
+        public List<CityInfo> Cities { get; } = new();
+
+        public Repository(ICoreSettings coreSettings, IDownloader downloader, IFeatureCollectionReader reader)
         {
+            this.coreSettings = coreSettings;
+            this.downloader = downloader;
             this.reader = reader;
         }
 
-        public void AddZoneFile(string code, string zoneFile)
+        public async Task<FeatureCollection> GetBuildingFeatures(string inseeCode)
         {
-            RepoElement repoElement;
-
-            if (!codeElement.TryGetValue(code, out repoElement))
+            if (!codeElement.TryGetValue(inseeCode, out RepoElement repoElement))
             {
                 repoElement = new RepoElement();
-                codeElement[code] = repoElement;
+                codeElement[inseeCode] = repoElement;
             }
 
-            repoElement.ZoneFile = zoneFile;
-        }
-
-        public void AddBuildingFile(string code, string buildingFile)
-        {
-            RepoElement repoElement;
-
-            if (!codeElement.TryGetValue(code, out repoElement))
+            if (string.IsNullOrEmpty(repoElement.BuildingFile))
             {
-                repoElement = new RepoElement();
-                codeElement[code] = repoElement;
-            }
-
-            repoElement.BuildingFile = buildingFile;
-        }
-
-        public FeatureCollection GetBuildingFeatures(string code)
-        {
-            if (!codeElement.TryGetValue(code, out RepoElement repoElement))
-            {
-                throw new ArgumentException("code not found");
+                downloader.FilesDirectory = coreSettings.DownloadDirectory;
+                var buildingFile = await downloader.DownloadBuilding(inseeCode);
+                repoElement.BuildingFile = buildingFile;
             }
 
             if (repoElement.BuildingCollection == null)
@@ -57,11 +48,19 @@ namespace findmyzone.Model
             return repoElement.BuildingCollection;
         }
 
-        public FeatureCollection GetZoneFeatures(string code)
+        public async Task<FeatureCollection> GetZoneFeatures(string inseeCode)
         {
-            if (!codeElement.TryGetValue(code, out RepoElement repoElement))
+            if (!codeElement.TryGetValue(inseeCode, out RepoElement repoElement))
             {
-                throw new ArgumentException("code not found");
+                repoElement = new RepoElement();
+                codeElement[inseeCode] = repoElement;
+            }
+
+            if (string.IsNullOrEmpty(repoElement.ZoneFile))
+            {
+                downloader.FilesDirectory = coreSettings.DownloadDirectory;
+                var zoneFile = await downloader.DownloadZone(inseeCode);
+                repoElement.ZoneFile = zoneFile;
             }
 
             if (repoElement.ZoneCollection == null)
@@ -81,5 +80,5 @@ namespace findmyzone.Model
             public string BuildingFile { get; set; }
             public FeatureCollection BuildingCollection { get; set; }
         }
-    }    
+    }
 }

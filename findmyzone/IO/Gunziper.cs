@@ -5,7 +5,7 @@ using System.IO;
 
 namespace findmyzone.IO
 {
-    class Gunziper : IGunziper
+    public class Gunziper : IGunziper
     {
         private readonly IReporter reporter;
         public Gunziper(IReporter reporter)

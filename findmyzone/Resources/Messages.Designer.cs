@@ -22,7 +22,7 @@ namespace findmyzone.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Messages {
+    public class Messages {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace findmyzone.Resources {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("findmyzone.Resources.Messages", typeof(Messages).Assembly);
@@ -51,7 +51,7 @@ namespace findmyzone.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Fichier déjà présent ({0}).
         /// </summary>
-        internal static string AlreadyDownloaded {
+        public static string AlreadyDownloaded {
             get {
                 return ResourceManager.GetString("AlreadyDownloaded", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Le code INSEE devrait avoir 5 chiffres (au lieu de {0} pour {1}).
         /// </summary>
-        internal static string CodeShouldHave5Digits {
+        public static string CodeShouldHave5Digits {
             get {
                 return ResourceManager.GetString("CodeShouldHave5Digits", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Utilisation du dossier de téléchargement: {0}.
         /// </summary>
-        internal static string DownloadDir {
+        public static string DownloadDir {
             get {
                 return ResourceManager.GetString("DownloadDir", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Erreur.
         /// </summary>
-        internal static string Error {
+        public static string Error {
             get {
                 return ResourceManager.GetString("Error", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Aucun code INSEE n&apos;a pu être trouvé....
         /// </summary>
-        internal static string NoInseeCodes {
+        public static string NoInseeCodes {
             get {
                 return ResourceManager.GetString("NoInseeCodes", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Ok.
         /// </summary>
-        internal static string Ok {
+        public static string Ok {
             get {
                 return ResourceManager.GetString("Ok", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Décompression du fichier {0}.
         /// </summary>
-        internal static string UngzipFile {
+        public static string UngzipFile {
             get {
                 return ResourceManager.GetString("UngzipFile", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to La ville &quot;{0}&quot; n&apos;a pas été trouvée.
         /// </summary>
-        internal static string WrongCityName {
+        public static string WrongCityName {
             get {
                 return ResourceManager.GetString("WrongCityName", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Le code INSEE &quot;{0}&quot; n&apos;a pas été trouvé.
         /// </summary>
-        internal static string WrongInseeCode {
+        public static string WrongInseeCode {
             get {
                 return ResourceManager.GetString("WrongInseeCode", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace findmyzone.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Le code postal &quot;{0}&quot; n&apos;a pas été trouvé.
         /// </summary>
-        internal static string WrongZipCode {
+        public static string WrongZipCode {
             get {
                 return ResourceManager.GetString("WrongZipCode", resourceCulture);
             }
