@@ -41,7 +41,10 @@ namespace findmyzoneui
                     var mainWindow = new MainWindow();
                     desktop.MainWindow = mainWindow;
 
+                    var downloadActions = new DownloadActions();
+
                     serviceCollection.AddSingleton(mainWindow);
+                    serviceCollection.AddSingleton(downloadActions);
                     serviceCollection.AddSingleton<IUiService, UiService>();
                     serviceCollection.AddSingleton<IZoneFinder, ZoneFinder>();
                     serviceCollection.AddSingleton<IRepository, Repository>();

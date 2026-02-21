@@ -11,25 +11,41 @@ public class Downloader : IDownloader
 {
     private const int BufferSize = 4096;
 
-    public async Task<string> Download(string url, string destinationFile, Action<uint, long?, long?>? progress, Action? indeterminate)
+    private readonly DownloadActions downloadActions;
+
+    public Downloader(DownloadActions downloadActions)
     {
-        HttpClient client = new();
-        HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-
-        Log.Information("Downloading {url}", url);
-
-        var totalBytes = response.Content.Headers.ContentLength;
-
-        if (totalBytes == null)
-        {
-            indeterminate?.Invoke();
-        }
-
-        using var contentStream = await response.Content.ReadAsStreamAsync();
-        return await ProcessContentStream(totalBytes, contentStream, destinationFile, progress);
+        this.downloadActions = downloadActions;
     }
 
-    private async Task<string> ProcessContentStream(long? totalDownloadSize, Stream contentStream, string destinationFilePath, Action<uint, long?, long?>? progress)
+    public async Task<string> Download(string url, string destinationFile)
+    {
+        try
+        {
+            downloadActions.BeforeDownload?.Invoke();
+
+            HttpClient client = new();
+            HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+
+            Log.Information("Downloading {url}", url);
+
+            var totalBytes = response.Content.Headers.ContentLength;
+
+            if (totalBytes == null)
+            {
+                downloadActions.Indeterminate?.Invoke();
+            }
+
+            using var contentStream = await response.Content.ReadAsStreamAsync();
+            return await ProcessContentStream(totalBytes, contentStream, destinationFile);
+        }
+        finally
+        {
+            downloadActions.AfterDownload?.Invoke();
+        }
+    }
+
+    private async Task<string> ProcessContentStream(long? totalDownloadSize, Stream contentStream, string destinationFilePath)
     {
         var totalBytesRead = 0L;
         var readCount = 0L;
@@ -43,7 +59,7 @@ public class Downloader : IDownloader
 
             do
             {
-                var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+                var bytesRead = await contentStream.ReadAsync(buffer);
                 if (bytesRead == 0)
                 {
                     isMoreToRead = false;
@@ -62,12 +78,12 @@ public class Downloader : IDownloader
                     if (percent > prevPercent)
                     {
                         prevPercent = percent;
-                        progress?.Invoke(percent, totalBytesRead / 1024, totalDownloadSize / 1024);
+                        downloadActions.Progress?.Invoke(percent, totalBytesRead / 1024, totalDownloadSize / 1024);
                     }
                 }
                 else
                 {
-                    progress?.Invoke(0, totalBytesRead / 1024, totalDownloadSize / 1024);
+                    downloadActions.Progress?.Invoke(0, totalBytesRead / 1024, totalDownloadSize / 1024);
                 }
             }
             while (isMoreToRead);

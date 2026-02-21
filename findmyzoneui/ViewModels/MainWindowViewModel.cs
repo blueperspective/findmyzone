@@ -34,6 +34,8 @@ namespace findmyzoneui.ViewModels
         private readonly ICoreSettings coreSettings;
         private readonly IManagedNotificationManager notificationManager;
         private readonly SettingsVM settingsVM;
+        private readonly IDownloader downloader;
+        private readonly DownloadActions downloadActions;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public MainWindowViewModel()
@@ -57,7 +59,7 @@ namespace findmyzoneui.ViewModels
             };
         }
 
-        public MainWindowViewModel(MainWindow window, IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, IManagedNotificationManager notificationManager, SettingsVM settingsVM)
+        public MainWindowViewModel(IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, IManagedNotificationManager notificationManager, SettingsVM settingsVM, IDownloader downloader, DownloadActions downloadActions)
         {
             this.uiService = uiService;
             this.repository = repository;
@@ -65,6 +67,29 @@ namespace findmyzoneui.ViewModels
             this.coreSettings = coreSettings;
             this.notificationManager = notificationManager;
             this.settingsVM = settingsVM;
+            this.downloader = downloader;
+            this.downloadActions = downloadActions;
+
+            downloadActions.BeforeDownload = () =>
+            {
+                IsDownloading = true;
+                IsIndeterminate = false;
+                DownloadName = InseeZipFilename;
+            };
+
+            downloadActions.AfterDownload = () =>
+            {
+                IsDownloading = false;
+            };
+
+            downloadActions.Progress = (percent, downloaded, total) =>
+            {
+                DownloadProgress = percent;
+                DownloadedKb = downloaded;
+                TotalKb = totalKb;
+            };
+
+            downloadActions.Indeterminate = () => IsIndeterminate = true;
         }
 
         public async Task LoadRepository()
@@ -81,8 +106,7 @@ namespace findmyzoneui.ViewModels
                     {
                         Log.Information("Insee file not found, downloading it");
                         notificationManager.Show(new Notification(UiMessages.FirstTimeUse, UiMessages.DownloadingZipInseeCodes));
-
-                        await Download(InseeZipUrl, inseeZipFile);
+                        await downloader.Download(InseeZipUrl, inseeZipFile);
                     }
                     catch (Exception ex)
                     {
@@ -116,25 +140,6 @@ namespace findmyzoneui.ViewModels
         }
 
         #region download
-
-        private async Task Download(string url, string destFile)
-        {
-            IsDownloading = true;
-            IsIndeterminate = false;
-            DownloadName = InseeZipFilename;
-
-            Downloader downloader = new();
-            await downloader.Download(
-                url,
-                destFile,
-                new Action<uint, long?, long?>((percent, downloaded, total) =>
-                {
-                    DownloadProgress = percent;
-                    DownloadedKb = downloaded;
-                    TotalKb = totalKb;
-                }),
-                () => IsIndeterminate = true);
-        }
 
         private bool isDownloading;
 
