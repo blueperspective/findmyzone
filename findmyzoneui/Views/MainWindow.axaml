@@ -50,6 +50,8 @@
               Command="{Binding FindZones}">
         <TextBlock Text="Rechercher" />
       </Button>
+      
+      <TextBlock Text="{Binding ResultCount, StringFormat=\{0\} zones trouvées}" />
 
     </StackPanel>
 

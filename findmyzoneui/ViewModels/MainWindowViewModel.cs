@@ -37,6 +37,17 @@ namespace findmyzoneui.ViewModels
             {
                 throw new Exception("Not in design");
             }
+
+            Results = new ObservableCollection<ResultVM>
+            {
+                new ResultVM(new ZoneFinderResult
+                    {
+                        ProjZoneGeometry = new NetTopologySuite.Geometries.Point(1, 1),
+                        Feature = new NetTopologySuite.Features.Feature()
+                    })
+                {
+                }
+            };
         }
 
         public MainWindowViewModel(MainWindow window, IUiService uiService, IRepository repository, IZoneFinder zoneFinder, ICoreSettings coreSettings, SettingsVM settingsVM)
@@ -68,9 +79,6 @@ namespace findmyzoneui.ViewModels
             get => isSearching;
             set => this.RaiseAndSetIfChanged(ref isSearching, value);
         }
-
-
-        private string city = string.Empty;
 
         private uint zoneMin;
 
@@ -208,6 +216,8 @@ namespace findmyzoneui.ViewModels
                     BuildingMax,
                     false);
 
+                ResultCount = await finderResults.CountAsync();
+
                 await foreach (var r in finderResults)
                 {
                     Results.Add(new ResultVM(r));
@@ -221,6 +231,14 @@ namespace findmyzoneui.ViewModels
             {
                 IsSearching = false;
             }
+        }
+
+        private int resultCount;
+
+        public int ResultCount
+        {
+            get => resultCount;
+            set => this.RaiseAndSetIfChanged(ref resultCount, value);
         }
 
         private ObservableCollection<ResultVM> results = new();
