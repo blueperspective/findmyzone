@@ -32,10 +32,10 @@ namespace findmyzone.Geo
         }
 
         public IEnumerable<ZoneFinderResult> FindZone(
-            string codeInsee, 
-            uint minLotArea, 
-            uint maxLotArea, 
-            bool useComputedArea, 
+            string codeInsee,
+            uint minLotArea,
+            uint maxLotArea,
+            bool useComputedArea,
             uint minBuildingArea,
             uint maxBuildingArea,
             bool ignoreBuilding)
@@ -45,7 +45,13 @@ namespace findmyzone.Geo
             foreach (var zoneFeature in zoneFeatures)
             {
                 var projGeo = GeoExtensions.Transform(zoneFeature.Geometry, mt);
-                long advertisedArea = (long)zoneFeature.Attributes[AreaAttribute];
+
+                long advertisedArea = 0;
+                if (zoneFeature.Attributes.Exists(AreaAttribute))
+                {
+                    advertisedArea = (long)zoneFeature.Attributes[AreaAttribute];
+                }
+
                 if (advertisedArea == 0)
                 {
                     useComputedArea = true;
